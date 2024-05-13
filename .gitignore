@@ -1,0 +1,7 @@
+__pycache__
+.vscode
+*.pth
+
+.DS_Store
+*_visual
+*.png
