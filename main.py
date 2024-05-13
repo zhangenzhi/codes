@@ -31,6 +31,6 @@ if __name__ == '__main__':
                 # model_output = model(inputs)
                 # loss = loss_function(model_output, labels)
                 # ...
-                if step%10000==0:
+                if step%1000==0:
                     print(step)
         print("Time cost for loading {}".format(time.time() - start_time))
