@@ -3,7 +3,17 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, InMemoryDataset
 
-
+# Define a custom InMemoryDataset class
+class InMemoryDataset(torch.utils.data.Dataset):
+    def __init__(self, data):
+        self.data = data
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        return self.data[idx]
+    
 def imagenet(args):
 
     # Define data transformations
