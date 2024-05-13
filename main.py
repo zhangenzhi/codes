@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # Example usage:
     # Iterate through the dataloaders
     import time
-    for e in range(len(args.epochs)):
+    for e in range(args.epochs):
         start_time = time.time()
         for phase in ['train', 'val']:
             for step, (inputs, labels) in enumerate(dataloaders[phase]):
