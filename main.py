@@ -13,6 +13,7 @@ def parse_args():
     parser.add_argument('--num_epochs', type=int, default=3, help='Epochs for iteration')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=8, help='Number of workers for DataLoader')
+    parser.add_argument('--pretrained', type=bool, default=False, help='Use pretrained weights')
     args = parser.parse_args()
     return args
 
