@@ -1,7 +1,7 @@
 import argparse
 import torch
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, InMemoryDataset
 
 
 def imagenet(args):
@@ -25,10 +25,14 @@ def imagenet(args):
     # Create datasets
     image_datasets = {x: datasets.ImageNet(root=args.data_dir, split=x, transform=data_transforms[x])
                       for x in ['train', 'val']}
+    
+    # Convert datasets to InMemoryDataset
+    in_memory_datasets = {x: InMemoryDataset(image_datasets[x]) for x in ['train', 'val']}
+
 
     # Create data loaders
     shuffle = True
-    dataloaders = {x: DataLoader(image_datasets[x], batch_size=args.batch_size, shuffle=shuffle, num_workers=args.num_workers)
+    dataloaders = {x: DataLoader(in_memory_datasets[x], batch_size=args.batch_size, shuffle=shuffle, num_workers=args.num_workers)
                    for x in ['train', 'val']}
     return dataloaders
 
