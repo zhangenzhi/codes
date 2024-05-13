@@ -89,6 +89,21 @@ def imagenet_subset(args):
 
     print("Subset creation completed.")
 
+# epoch iteration
+def imagenet_iter(args):
+    dataloaders = imagenet(args=args)
+    
+    # Example usage:
+    # Iterate through the dataloaders
+    import time
+    for e in range(args.num_epochs):
+        start_time = time.time()
+        for phase in ['train', 'val']:
+            for step, (inputs, labels) in enumerate(dataloaders[phase]):
+                if step%1000==0:
+                    print(step)
+        print("Time cost for loading {}".format(time.time() - start_time))
+        
 if __name__ == "__main__":
     dataloaders = imagenet()
     # Example usage:
