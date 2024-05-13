@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A bif146
 #SBATCH -o vit.o%J
-#SBATCH -t 08:00:00
+#SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
 
