@@ -19,7 +19,8 @@ module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
 
-srun python main.py \
+python main.py \
+    --task imagenet \
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
     --batch_size 32 \
     --num_workers 32
