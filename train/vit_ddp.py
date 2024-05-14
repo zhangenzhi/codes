@@ -124,13 +124,13 @@ def evaluate_model(model, val_loader, device_id):
     return accuracy
 
 def vit_ddp(args):
-    dist.init_process_group("nccl")
+    dist.init_process_group("nccl",)
     rank = dist.get_rank()
     print(f"Start running basic DDP example on rank {rank}.")
     device_id = rank % torch.cuda.device_count()
     
     # Create DataLoader for training and validation
-    dataloaders = imagenet_distribute(args=args)
+    dataloaders = imagenet_distribute(args=args, init_method='env://')
 
     
     # Create ViT model
