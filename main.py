@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from dataset.imagenet import imagenet_iter
 from train.vit_train import vit_train
-
+from train.vit_ddp import vit_ddp
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
@@ -24,6 +24,9 @@ def main(args):
         
     elif args.task == "vit_imagenet":
         vit_train(args=args)
+    
+    elif args.task == "vit_ddp":
+        vit_ddp(args=args)
         
 if __name__ == '__main__':
     args = parse_args()
