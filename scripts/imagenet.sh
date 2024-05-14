@@ -23,4 +23,4 @@ python main.py \
     --task imagenet \
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
     --batch_size 32 \
-    --num_workers 32
+    --num_workers 8
