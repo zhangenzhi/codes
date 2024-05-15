@@ -1,9 +1,11 @@
+import os
 import torch
 from torch import nn
 import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
 import timm
 
+import torch.multiprocessing as mp
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
@@ -123,9 +125,17 @@ def evaluate_model(model, val_loader, device_id):
     accuracy = 100 * correct / total
     return accuracy
 
-def vit_ddp(args):
-    dist.init_process_group("nccl",init_method='env://')
-    rank = dist.get_rank()
+def vit_train(gpu, args):
+    rank = args.nr * args.gpus + gpu
+    print("cal:{},get:{}".format(rank, dist.get_rank()))
+    
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=rank                                               
+    )
+
     print(f"Start running basic DDP example on rank {rank}.")
     device_id = rank % torch.cuda.device_count()
     
@@ -145,3 +155,9 @@ def vit_ddp(args):
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)
 
+def vit_ddp(args):
+    args.world_size = args.gpus * args.nodes                
+    os.environ['MASTER_ADDR'] = "127.0.0.1"
+    os.environ['MASTER_PORT'] = "23456"
+    mp.spawn(vit_train, nprocs=args.gpus, args=(args,))         
+    dist.init_process_group("nccl", init_method='env://')

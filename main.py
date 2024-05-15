@@ -10,6 +10,8 @@ from train.vit_ddp import vit_ddp
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
+    parser.add_argument('--gpus', type=int, default=8, help='Epochs for iteration')
+    parser.add_argument('--nodes', type=int, default=1, help='Epochs for iteration')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')
     parser.add_argument('--num_epochs', type=int, default=3, help='Epochs for iteration')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for DataLoader')
