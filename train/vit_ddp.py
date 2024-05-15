@@ -131,7 +131,7 @@ def vit_train(gpu, args):
     os.environ['MASTER_PORT'] = "29500"
     dist.init_process_group(                                   
     	backend='nccl',                                         
-   		# init_method='env://',                                   
+   		init_method='env://',                                   
     	world_size=args.world_size,                              
     	rank=rank                                               
     )
