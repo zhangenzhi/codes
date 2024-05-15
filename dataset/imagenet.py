@@ -70,8 +70,7 @@ def imagenet_distribute(args):
     sampler = {x:torch.utils.data.distributed.DistributedSampler(image_datasets[x]) for x in ['train', 'val']}
 
     # Create data loaders
-    shuffle = True
-    dataloaders = {x: DataLoader(image_datasets[x], batch_size=args.batch_size, shuffle=shuffle, 
+    dataloaders = {x: DataLoader(image_datasets[x], batch_size=args.batch_size,
                                  num_workers=args.num_workers, pin_memory=False, sampler=sampler[x])
                    for x in ['train', 'val']}
     return dataloaders
