@@ -127,7 +127,6 @@ def evaluate_model(model, val_loader, device_id):
 
 def vit_train(gpu, args):
     rank = args.nodes * args.gpus + gpu
-    print("cal:{},get:{}".format(rank, dist.get_rank()))
     
     dist.init_process_group(                                   
     	backend='nccl',                                         
@@ -135,6 +134,7 @@ def vit_train(gpu, args):
     	world_size=args.world_size,                              
     	rank=rank                                               
     )
+    print("cal:{},get:{}".format(rank, dist.get_rank()))
 
     print(f"Start running basic DDP example on rank {rank}.")
     device_id = rank % torch.cuda.device_count()
