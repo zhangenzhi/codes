@@ -127,7 +127,8 @@ def evaluate_model(model, val_loader, device_id):
 
 def vit_train(gpu, args):
     rank = args.nodes * args.gpus + gpu
-    
+    os.environ['MASTER_ADDR'] = 'localhost' #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		# init_method='env://',                                   
@@ -157,6 +158,4 @@ def vit_train(gpu, args):
 
 def vit_ddp(args):
     args.world_size = args.gpus * args.nodes                
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "29500"
     mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
