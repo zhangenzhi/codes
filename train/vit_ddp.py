@@ -159,5 +159,4 @@ def vit_ddp(args):
     args.world_size = args.gpus * args.nodes                
     os.environ['MASTER_ADDR'] = "127.0.0.1"
     os.environ['MASTER_PORT'] = "23456"
-    mp.spawn(vit_train, nprocs=args.gpus, args=(args,))         
-    dist.init_process_group("nccl", init_method='env://')
+    mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
