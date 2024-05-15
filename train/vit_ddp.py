@@ -157,6 +157,6 @@ def vit_train(gpu, args):
 
 def vit_ddp(args):
     args.world_size = args.gpus * args.nodes                
-    os.environ['MASTER_ADDR'] = "127.0.0.1"
-    os.environ['MASTER_PORT'] = "23456"
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
     mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
