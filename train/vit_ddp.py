@@ -126,7 +126,7 @@ def evaluate_model(model, val_loader, device_id):
     return accuracy
 
 def vit_train(gpu, args):
-    rank = args.nr * args.gpus + gpu
+    rank = args.nodes * args.gpus + gpu
     print("cal:{},get:{}".format(rank, dist.get_rank()))
     
     dist.init_process_group(                                   
