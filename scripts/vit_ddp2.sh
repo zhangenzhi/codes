@@ -19,10 +19,10 @@ module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
 
-srun -n 2 -c 16 python main.py \
+srun -n 2 -c 64 python main.py \
     --task vit_ddp \
     --gpus 8\
-    --nodes 2\
+    --nodes 1\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
     --batch_size 32 \
     --num_workers 16 \
