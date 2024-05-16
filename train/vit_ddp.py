@@ -134,7 +134,7 @@ def vit_train(gpu, args):
 
     dist.init_process_group(                                   
     	backend='nccl',                                         
-   		init_method='env://',                                   
+   		# init_method='env://',                                   
     	world_size=args.world_size,                              
     	rank=rank                                               
     )
