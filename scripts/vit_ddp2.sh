@@ -15,6 +15,12 @@ export HOME="/tmp/srun"
 # source /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/etc/profile.d/conda.sh
 # conda activate /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/envs/gvit
 
+export RANK=$SLURM_PROCID
+export LOCAL_RANK=$SLURM_LOCALID
+export WORLD_SIZE=$SLURM_LOCALID
+export MASTER_ADDR=$HOSTNAME
+export MASTER_PORT=29500
+
 module load PrgEnv-gnu
 module load gcc/12.2.0
 module load rocm/5.7.0
