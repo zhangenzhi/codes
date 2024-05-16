@@ -125,7 +125,7 @@ def evaluate_model(model, val_loader, device_id):
     accuracy = 100 * correct / total
     return accuracy
 
-def vit_train(gpu, args):
+def vit_train(args):
     rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
@@ -158,7 +158,9 @@ def vit_train(gpu, args):
 
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)
+    dist.destroy_process_group()
 
 def vit_ddp(args):
     args.world_size = int(os.environ['SLURM_NTASKS'])         
-    mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
+    # mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
+    vit_train(args=args)
