@@ -27,5 +27,5 @@ srun -N 2 -n 16 --ntasks-per-node 8 -c 8 python main.py \
     --nodes 2\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
     --batch_size 32 \
-    --num_workers 16 \
+    --num_workers 8 \
     --num_epochs 30
