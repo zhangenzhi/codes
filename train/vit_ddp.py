@@ -13,11 +13,12 @@ import logging
 from dataset.imagenet import imagenet_distribute
 
 # Configure logging
-logging.basicConfig(
-    filename='training.log',
-    level=logging.WARNING,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+def log(args):
+    logging.basicConfig(
+        filename=args.logname,
+        level=logging.WARNING,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 def create_vit_model(pretrained, num_classes=1000):
     """
@@ -165,6 +166,7 @@ def vit_train(args):
     dist.destroy_process_group()
 
 def vit_ddp(args):
+    log(args=args)
     args.world_size = int(os.environ['SLURM_NTASKS'])
     # mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
     vit_train(args=args)
