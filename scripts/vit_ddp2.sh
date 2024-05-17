@@ -23,7 +23,7 @@ module load rocm/5.7.0
 
 srun -N 16 -n 128 --ntasks-per-node 8 python main.py \
     --task vit_ddp \
-    --logname train-8.log\
+    --logname train-16.log\
     --gpus 8\
     --nodes 16\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
