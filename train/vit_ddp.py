@@ -131,7 +131,7 @@ def vit_train(args):
     os.environ['MASTER_PORT'] = "29500"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']
-
+    print(os.environ['MASTER_ADDR'], os.environ['MASTER_PORT'], os.environ['WORLD_SIZE'], os.environ['RANK'])
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		init_method='env://',                                   
