@@ -131,14 +131,18 @@ def vit_train(args):
     os.environ['MASTER_PORT'] = "29500"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']
-    print(os.environ['MASTER_ADDR'], os.environ['MASTER_PORT'], os.environ['WORLD_SIZE'], os.environ['RANK'])
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    rank))
     dist.init_process_group(                                   
     	backend='nccl',                                         
    		init_method='env://',                                   
     	world_size=args.world_size,                              
-    	rank=rank                                               
+    	rank=os.environ['RANK']                                               
     )
-    print("cal:{},get:{}".format(rank, dist.get_rank()))
+    print("SLURM_LOCALID/rank:{}, dist_rank:{}".format(rank, dist.get_rank()))
 
     print(f"Start running basic DDP example on rank {rank}.")
     device_id = rank % torch.cuda.device_count()
