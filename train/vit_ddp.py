@@ -140,7 +140,7 @@ def vit_train(args):
     	backend='nccl',                                         
    		init_method='env://',                                   
     	world_size=args.world_size,                              
-    	rank=os.environ['RANK']                                               
+    	rank=int(os.environ['RANK'])                                               
     )
     print("SLURM_LOCALID/rank:{}, dist_rank:{}".format(rank, dist.get_rank()))
 
