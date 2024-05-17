@@ -15,7 +15,7 @@ from dataset.imagenet import imagenet_distribute
 # Configure logging
 logging.basicConfig(
     filename='training.log',
-    level=logging.DEBUG,
+    level=logging.WARNING,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
