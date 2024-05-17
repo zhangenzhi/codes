@@ -16,7 +16,7 @@ from dataset.imagenet import imagenet_distribute
 def log(args):
     logging.basicConfig(
         filename=args.logname,
-        level=logging.WARNING,
+        level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
