@@ -93,7 +93,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
         # Validate after each epoch
         val_acc = evaluate_model(model, val_loader, device_id)
-        logging.info("Validation Accuracy: %.4f", val_acc)
+        logging.info("Epoch: %d, Validation Accuracy: %.4f", epoch + 1, val_acc)
 
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
