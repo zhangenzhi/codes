@@ -132,23 +132,27 @@ def evaluate_model(model, val_loader, device_id):
     return accuracy
 
 def vit_train(args):
-    rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME'])  # str(os.environ['HOSTNAME'])
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
     os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
     os.environ['RANK'] = os.environ['SLURM_PROCID']
-    logging.info("MASTER_ADDR: %s, MASTER_PORT: %s, WORLD_SIZE: %s, WORLD_RANK: %s, local_rank: %d",
-                 os.environ['MASTER_ADDR'], os.environ['MASTER_PORT'], os.environ['WORLD_SIZE'], os.environ['RANK'], rank)
-    dist.init_process_group(
-        backend='nccl',
-        init_method='env://',
-        world_size=args.world_size,
-        rank=int(os.environ['RANK'])
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    local_rank))
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=int(os.environ['RANK'])                                               
     )
-    logging.info("SLURM_LOCALID/rank: %d, dist_rank: %d", rank, dist.get_rank())
-    logging.info("Start running basic DDP example on rank %d.", rank)
-    device_id = rank % torch.cuda.device_count()
+    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
 
+    print(f"Start running basic DDP example on rank {local_rank}.")
+    device_id = local_rank % torch.cuda.device_count()
+    
     # Create DataLoader for training and validation
     dataloaders = imagenet_distribute(args=args)
 
