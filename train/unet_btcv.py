@@ -2,44 +2,12 @@ import torch
 from torch import nn
 import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
-from torchvision.datasets import ImageNet  # Assuming you have ImageNet downloaded
 import timm
 
-from model.vit import create_vit_model
-from dataset.imagenet import imagenet
+from model.unet import create_unet_model
+from dataset.btcv import btcv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-def create_vit_model(pretrained, num_classes=1000):
-    """
-    Creates a ViT model for ImageNet classification.
-
-    Args:
-        pretrained (bool): If True, loads pre-trained weights. Defaults to False.
-        num_classes (int, optional): Number of output classes (defaults to 1000 for ImageNet). Defaults to 1000.
-
-    Returns:
-        nn.Module: The created ViT model.
-    """
-
-    if pretrained:
-        # Fine-tune a pre-trained model (freeze early layers if desired)
-        model = timm.create_model("vit_base_patch16_224", pretrained=True)
-        for param in model.parameters():
-            param.requires_grad = False  # Optionally freeze early layers
-
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-
-    else:
-        # Create a ViT model with randomly initialized weights
-        model = timm.create_model("vit_base_patch16_224", pretrained=False)
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-
-    return model.to(device)
 
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
@@ -123,13 +91,13 @@ def evaluate_model(model, val_loader):
     accuracy = 100 * correct / total
     return accuracy
 
-def vit_train(args):
+def unet_btcv(args):
 
     # Create DataLoader for training and validation
-    dataloaders = imagenet(args=args)
+    dataloaders = btcv(args=args)
     
-    # Create ViT model
-    model = create_vit_model(args.pretrained)
+    # Create Unet model
+    model = create_unet_model(args.pretrained)
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()

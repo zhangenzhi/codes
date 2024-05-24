@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o vit.o%J
+#SBATCH -o vit_imagenet.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
