@@ -42,10 +42,10 @@ class UNet(nn.Module):
 def create_unet_model(pretrained=True, backbone_name="resnet34", n_classes=1):
     # Example usage:
     model = UNet(backbone_name=backbone_name, pretrained=pretrained, n_classes=n_classes)
-    x = torch.randn(1, 3, 224, 224)  # Example input tensor
-    output = model(x)
-    print(output.shape)  # Should be [1, 1, 224, 224]
     return model
     
 if __name__ == "__main__":
-    create_unet_model()
+    model = create_unet_model()
+    x = torch.randn(1, 3, 224, 224)  # Example input tensor
+    output = model(x)
+    print(output.shape)  # Should be [1, 1, 224, 224]

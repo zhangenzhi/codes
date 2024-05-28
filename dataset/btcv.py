@@ -35,7 +35,7 @@ from monai.data import (
 
 import torch
 
-print_config()
+# print_config()
 
 directory = os.environ.get("MONAI_DATA_DIRECTORY")
 root_dir = tempfile.mkdtemp() if directory is None else directory
@@ -113,7 +113,7 @@ val_transforms = Compose(
 )
 
 def btcv(args):
-    data_dir = args.datapath
+    data_dir = args.data_dir
     split_json = "dataset.json"
 
     datasets = os.path.join(data_dir,split_json)
@@ -126,70 +126,79 @@ def btcv(args):
         cache_rate=1.0,
         num_workers=8,
     )
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
+    # train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4, pin_memory=True)
     val_ds = CacheDataset(data=val_files, transform=val_transforms, cache_num=6, cache_rate=1.0, num_workers=4)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
-    dataloaders = {'train': train_loader,  'val': val_loader}
-    return dataloaders
+    # val_loader = DataLoader(val_ds, batch_size=4, shuffle=False, num_workers=4, pin_memory=True)
+    datasets = {'train': train_ds,  'val': val_ds}
+    return datasets
 
-def main(args):
-    data_dir = args.datapath
-    split_json = "dataset.json"
+def btcv_iter(args):
 
-    datasets = os.path.join(data_dir,split_json)
-    datalist = load_decathlon_datalist(datasets, True, "training")
-    val_files = load_decathlon_datalist(datasets, True, "validation")
-    train_ds = CacheDataset(
-        data=datalist,
-        transform=train_transforms,
-        cache_num=24,
-        cache_rate=1.0,
-        num_workers=8,
-    )
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
-    val_ds = CacheDataset(data=val_files, transform=val_transforms, cache_num=6, cache_rate=1.0, num_workers=4)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
-    
-    slice_map = {
-    "img0035.nii.gz": 170,
-    "img0036.nii.gz": 230,
-    "img0037.nii.gz": 204,
-    "img0038.nii.gz": 204,
-    "img0039.nii.gz": 204,
-    "img0040.nii.gz": 180,
-    }
-    
-    case_num = 0
-    img_name = os.path.split(val_ds[case_num]["image"].meta["filename_or_obj"])[1]
-    img = val_ds[case_num]["image"]
-    label = val_ds[case_num]["label"]
-    img_shape = img.shape
-    label_shape = label.shape
-    print(f"image shape: {img_shape}, label shape: {label_shape}")
+    datasets = btcv(args=args)
     plt.figure("image", (18, 6))
-    plt.subplot(1, 2, 1)
+    img = datasets["val"][0]["image"]
+    label = datasets["val"][0]["label"]
+    plt.subplot(2, 2, 1)
+    plt.imshow(img[0, :, :, 170].detach().cpu(), cmap="gray")
+    plt.subplot(2, 2, 3)
+    plt.imshow(label[0, :, :, 170].detach().cpu())
+    img = datasets["val"][1]["image"]
+    label = datasets["val"][1]["label"]
+    plt.subplot(2, 2, 2)
+    plt.imshow(img[0, :, :, 170].detach().cpu(), cmap="gray")
+    plt.subplot(2, 2, 4)
+    plt.imshow(label[0, :, :, 170].detach().cpu())
     plt.title("image")
-    plt.imshow(img[0, :, :, slice_map[img_name]].detach().cpu(), cmap="gray")
-    plt.subplot(1, 2, 2)
-    plt.title("label")
-    plt.imshow(label[0, :, :, slice_map[img_name]].detach().cpu())
     plt.show()
+    
+    # Example usage:
+    # Iterate through the dataloaders
+    # import time
+    # for e in range(args.num_epochs):
+    #     start_time = time.time()
+    #     for phase in ['train', 'val']:
+    #         for step, sample in enumerate(datasets[phase]):
+    #             if step%8==0:
+    #                 print(sample.keys())
+    #                 print([v.shape for v in sample.values()])
+    #     print("Time cost for loading {}".format(time.time() - start_time))
+        
+    # slice_map = {
+    # "img0035.nii.gz": 170,
+    # "img0036.nii.gz": 230,
+    # "img0037.nii.gz": 204,
+    # "img0038.nii.gz": 204,
+    # "img0039.nii.gz": 204,
+    # "img0040.nii.gz": 180,
+    # }
+    
+    # case_num = 0
+    # img_name = os.path.split(val_ds[case_num]["image"].meta["filename_or_obj"])[
+    # img = val_ds[case_num]["image"]
+    # label = val_ds[case_num]["label"]
+    # img_shape = img.shape
+    # label_shape = label.shape
+    # print(f"image shape: {img_shape}, label shape: {label_shape}")
+    # plt.figure("image", (18, 6))
+    # plt.subplot(1, 2, 1)
+    # plt.title("image")
+    # plt.imshow(img[0, :, :, slice_map[img_name]].detach().cpu(), cmap="gray")
+    # plt.subplot(1, 2, 2)
+    # plt.title("label")
+    # plt.imshow(label[0, :, :, slice_map[img_name]].detach().cpu())
+    # plt.show()
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', default="btcv", 
                         help='base path of dataset.')
-    parser.add_argument('--datapath', default="/Volumes/data/dataset/btcv/data", 
+    parser.add_argument('--data_dir', default="/Volumes/data/dataset/btcv/data", 
                         help='base path of dataset.')
-    parser.add_argument('--resolution', default=512, type=int,
-                        help='resolution of img.')
-    parser.add_argument('--epoch', default=10, type=int,
+    parser.add_argument('--num_epochs', default=10, type=int,
                         help='Epoch of training.')
-    parser.add_argument('--batch_size', default=8, type=int,
+    parser.add_argument('--batch_size', default=1, type=int,
                         help='Batch_size for training')
-    parser.add_argument('--savefile', default="./vitunet_visual",
-                        help='save visualized and loss filename')
     args = parser.parse_args()
    
-    main(args=args)
+    btcv_iter(args=args)

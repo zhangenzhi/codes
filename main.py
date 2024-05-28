@@ -5,6 +5,8 @@ from torch.utils.data import DataLoader
 
 
 from dataset.imagenet import imagenet_iter
+from dataset.btcv import btcv_iter
+
 from train.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.unet_btcv import unet_btcv
@@ -20,22 +22,27 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=8, help='Number of workers for DataLoader')
     parser.add_argument('--pretrained', type=bool, default=False, help='Use pretrained weights')
+    parser.add_argument('--2d', type=bool, default=True, help='Use flat the 3d mri image to 2d.')
+    
     args = parser.parse_args()
     return args
 
 def main(args):
     if args.task == "imagenet":
         imagenet_iter(args=args)
-        
     elif args.task == "vit_imagenet":
         vit_train(args=args)
-    
     elif args.task == "vit_imagenet_ddp":
         vit_ddp(args=args)
-    
+    elif args.task == "btcv":
+        btcv_iter(args=args)
     elif args.task == "unet_btcv":
         unet_btcv(args=args)
-        
+    elif args.task == "unet_btcv_ddp":
+        unet_btcv(args=args)
+    else:
+        raise "No such task."
+    
 if __name__ == '__main__':
     args = parse_args()
     main(args=args)
