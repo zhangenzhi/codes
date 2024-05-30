@@ -21,7 +21,7 @@ module load rocm/5.7.0
 
 python main.py \
     --task unet3d_btcv \
-    --logname train-opt.log\
+    --logname train-bz4.log\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
     --batch_size 4 \
     --num_workers 4 \
