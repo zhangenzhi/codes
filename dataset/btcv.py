@@ -71,7 +71,7 @@ train_transforms = Compose(
         #     image_key="image",
         #     image_threshold=0,
         # ),
-        ResizeWithPadOrCrop(spatial_size=(96,96,96)),
+        ResizeWithPadOrCrop(spatial_size=(96,96,96), keys=["image", "label"],),
         RandFlipd(
             keys=["image", "label"],
             spatial_axis=[0],
