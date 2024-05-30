@@ -1,3 +1,4 @@
+import os
 import torch
 from torch import nn
 import torch.utils.data as data  # For custom dataset (optional)
@@ -5,6 +6,7 @@ import torchvision.transforms as transforms
 
 import sys
 sys.path.append("./")
+import matplotlib.pyplot as plt
 
 from model.unet3d import create_unet3d_model
 from dataset.btcv import btcv
@@ -115,6 +117,37 @@ def evaluate_model(model, val_loader, dice_metric):
         dice_metric.reset()
     return mean_dice_val
 
+def visualize(val_ds, model):
+    slice_map = {
+        "img0035.nii.gz": 170,
+        "img0036.nii.gz": 230,
+        "img0037.nii.gz": 204,
+        "img0038.nii.gz": 204,
+        "img0039.nii.gz": 204,
+        "img0040.nii.gz": 180,
+    }
+    case_num = 4
+    model.load_state_dict(torch.load(os.path.join("./", "best_metric_model.pth")))
+    model.eval()
+    with torch.no_grad():
+        img_name = os.path.split(val_ds[case_num]["image"].meta["filename_or_obj"])[1]
+        img = val_ds[case_num]["image"]
+        label = val_ds[case_num]["label"]
+        val_inputs = torch.unsqueeze(img, 1).cuda()
+        val_labels = torch.unsqueeze(label, 1).cuda()
+        val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model, overlap=0.8)
+        plt.figure("check", (18, 6))
+        plt.subplot(1, 3, 1)
+        plt.title("image")
+        plt.imshow(val_inputs.cpu().numpy()[0, 0, :, :, slice_map[img_name]], cmap="gray")
+        plt.subplot(1, 3, 2)
+        plt.title("label")
+        plt.imshow(val_labels.cpu().numpy()[0, 0, :, :, slice_map[img_name]])
+        plt.subplot(1, 3, 3)
+        plt.title("output")
+        plt.savefig("btcv_best-4.png")
+        plt.close()
+        
 def unet3d_btcv(args):
     
     log(args=args)
@@ -134,6 +167,9 @@ def unet3d_btcv(args):
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, dice_metric, optimizer, args.num_epochs)
 
+    # Visualize prediction
+    visualize(dataloaders["val"], model=model)
+    
 if __name__=="__main__":
     import argparse
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
