@@ -16,6 +16,7 @@ from monai.transforms import (
     Orientationd,
     RandFlipd,
     RandCropByPosNegLabeld,
+    ResizeWithPadOrCrop,
     RandShiftIntensityd,
     ScaleIntensityRanged,
     Spacingd,
@@ -70,6 +71,7 @@ train_transforms = Compose(
         #     image_key="image",
         #     image_threshold=0,
         # ),
+        ResizeWithPadOrCrop(spatial_size=(96,96,96)),
         RandFlipd(
             keys=["image", "label"],
             spatial_axis=[0],
