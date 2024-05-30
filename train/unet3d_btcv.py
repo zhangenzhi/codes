@@ -60,8 +60,8 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             images = images.to(device)
             labels = labels.to(device)
 
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             
             # Forward pass, calculate loss
             outputs = model(images)
