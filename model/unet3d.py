@@ -101,7 +101,13 @@ def create_unet3d_model(n_channels, n_classes=1):
     return model
 
 if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = UNet3D(n_channels=1, n_classes=14)
-    x = torch.randn(1, 1, 96, 96, 96)  # Example input tensor (3D data)
-    output = model(x)
-    print(output.shape)  # Should be [1, 14, 96, 96, 96]
+    model.to(device=device)
+    x = torch.randn(1, 1, 96, 96, 96).to(device=device)  # Example input tensor (3D data)
+    import time
+    start_time = time.time()
+    for i in range(30):
+        output = model(x)
+        print(output.shape)  # Should be [1, 14, 96, 96, 96]
+    print("Time cost for loading {}".format(time.time() - start_time))
