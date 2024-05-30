@@ -23,6 +23,6 @@ python main.py \
     --task unet3d_btcv \
     --logname train-1g-v.log\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
-    --batch_size 1 \
+    --batch_size 4 \
     --num_workers 4 \
     --num_epochs 30
