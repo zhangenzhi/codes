@@ -161,7 +161,7 @@ def unet3d_btcv(args):
     
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-5)
     dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
 
     # Train the model
