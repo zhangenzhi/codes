@@ -126,7 +126,7 @@ def visualize(val_ds, model):
         "img0040.nii.gz": 180,
     }
     case_num = 4
-    model.load_state_dict(torch.load(os.path.join("./", "best_metric_model.pth")))
+    model.load_state_dict(torch.load(os.path.join("./", "best_unetr_model.pth")))
     model.eval()
     with torch.no_grad():
         img_name = os.path.split(val_ds[case_num]["image"].meta["filename_or_obj"])[1]
