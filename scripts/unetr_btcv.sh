@@ -23,6 +23,6 @@ python main.py \
     --task unetr_btcv \
     --logname train-unetr.log\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
-    --batch_size 4 \
+    --batch_size 1 \
     --num_workers 4 \
     --num_epochs 300

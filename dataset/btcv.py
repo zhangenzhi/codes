@@ -62,17 +62,17 @@ train_transforms = Compose(
             clip=True,
         ),
         CropForegroundd(keys=["image", "label"], source_key="image"),
-        # RandCropByPosNegLabeld(
-        #     keys=["image", "label"],
-        #     label_key="label",
-        #     spatial_size=(96, 96, 96),
-        #     pos=1,
-        #     neg=1,
-        #     num_samples=4,
-        #     image_key="image",
-        #     image_threshold=0,
-        # ),
-        Resized(keys=["image","label"],spatial_size=[96,96,96]),
+        RandCropByPosNegLabeld(
+            keys=["image", "label"],
+            label_key="label",
+            spatial_size=(96, 96, 96),
+            pos=1,
+            neg=1,
+            num_samples=4,
+            image_key="image",
+            image_threshold=0,
+        ),
+        # Resized(keys=["image","label"],spatial_size=[96,96,96]),
         RandFlipd(
             keys=["image", "label"],
             spatial_axis=[0],
@@ -137,7 +137,8 @@ def btcv(args):
                           num_workers=1)
     val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
     dataloaders = {'train': train_loader,  'val': val_loader}
-    return dataloaders
+    datasets = {'train': train_ds,  'val': val_ds}
+    return dataloaders, datasets
 
 def visualize(val_ds):
     slice_map = {
