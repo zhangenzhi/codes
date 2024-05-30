@@ -105,13 +105,14 @@ def evaluate_model(model, val_loader, dice_metric):
         dice_metric.reset()
     return mean_dice_val
 
-def unet_btcv(args):
+def unet3d_btcv(args):
 
     # Create DataLoader for training and validation
     dataloaders = btcv(args=args)
     
     # Create Unet model
     model = create_unet3d_model(n_channels=1, n_classes=14)
+    model.to(device)
     
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
@@ -131,4 +132,4 @@ if __name__=="__main__":
     parser.add_argument('--num_workers', type=int, default=1, help='Number of workers for DataLoader')
     args = parser.parse_args()
     
-    unet_btcv(args=args)
+    unet3d_btcv(args=args)
