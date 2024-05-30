@@ -1,0 +1,134 @@
+import torch
+from torch import nn
+import torch.utils.data as data  # For custom dataset (optional)
+import torchvision.transforms as transforms
+
+import sys
+sys.path.append("./")
+
+from model.unet3d import create_unet3d_model
+from dataset.btcv import btcv
+
+from monai.losses import DiceCELoss
+from monai.inferers import sliding_window_inference
+from monai.metrics import DiceMetric
+from monai.transforms import AsDiscrete
+from monai.data import (
+    decollate_batch,
+)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+post_label = AsDiscrete(to_onehot=14)
+post_pred = AsDiscrete(argmax=True, to_onehot=14)
+
+def train_model(model, train_loader, val_loader, criterion, dice_metric, optimizer, num_epochs):
+    """
+    Trains the ViT model on the ImageNet dataset with validation.
+
+    Args:
+        model (nn.Module): The ViT model to train.
+        train_loader (DataLoader): The DataLoader for the training data.
+        val_loader (DataLoader): The DataLoader for the validation data.
+        criterion (nn.Module): The loss function (e.g., CrossEntropyLoss).
+        optimizer (Optimizer): The optimizer (e.g., Adam).
+        num_epochs (int): The number of epochs to train.
+
+    Returns:
+        None
+    """
+    model.train()  # Set model to training mode
+    total_step = len(train_loader)
+    best_val_dice = 0.0
+    print("Training the Unet3d model for {} epochs...".format(num_epochs))
+
+    for epoch in range(num_epochs):
+        print("Epoch {}/{}".format(epoch + 1, num_epochs))
+        running_loss = 0.0
+        for i, sample in enumerate(train_loader):
+            images = sample["image"]
+            labels = sample["label"]
+            
+            images = images.to(device)
+            labels = labels.to(device)
+
+            # Forward pass, calculate loss
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+            # Backward pass and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            # Print training progress (optional)
+            running_loss += loss.item()
+            if i % 16 == 15:  # Print every 100 mini-batches
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 100))
+                running_loss = 0.0
+
+        # Validate after each epoch
+        mean_dice_val = evaluate_model(model, val_loader, dice_metric)
+        print("Validation Dice: {:.4f}".format(mean_dice_val))
+
+        # Save the best model based on validation accuracy
+        if mean_dice_val > best_val_dice:
+            best_val_dice = mean_dice_val
+            torch.save(model.state_dict(), "best_unet3d_model.pth")
+
+        print('Finished Training Step %d' % (epoch + 1))
+
+    print('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_dice))
+
+def evaluate_model(model, val_loader, dice_metric):
+    """
+    Evaluates the model on the validation set.
+
+    Args:
+        model (nn.Module): The trained model.
+        val_loader (DataLoader): The
+            # Put model in evaluation mode
+    """
+    
+    model.eval()
+    
+    with torch.no_grad():
+        for batch in val_loader:
+            val_inputs, val_labels = (batch["image"].cuda(), batch["label"].cuda())
+            val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model)
+            val_labels_list = decollate_batch(val_labels)
+            val_labels_convert = [post_label(val_label_tensor) for val_label_tensor in val_labels_list]
+            val_outputs_list = decollate_batch(val_outputs)
+            val_output_convert = [post_pred(val_pred_tensor) for val_pred_tensor in val_outputs_list]
+            dice_metric(y_pred=val_output_convert, y=val_labels_convert)
+        mean_dice_val = dice_metric.aggregate().item()
+        dice_metric.reset()
+    return mean_dice_val
+
+def unet_btcv(args):
+
+    # Create DataLoader for training and validation
+    dataloaders = btcv(args=args)
+    
+    # Create Unet model
+    model = create_unet3d_model(n_channels=1, n_classes=14)
+    
+    # Define loss function and optimizer
+    criterion = DiceCELoss(to_onehot_y=True, softmax=True)
+    optimizer = torch.optim.Adam(model.parameters())
+    dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
+
+    # Train the model
+    train_model(model, dataloaders['train'], dataloaders['val'], criterion, dice_metric, optimizer, args.num_epochs)
+
+if __name__=="__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
+    parser.add_argument('--logname', type=str, default='train.log', help='logging of task.')
+    parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/btcv/data', help='Path to the BTCV dataset directory')
+    parser.add_argument('--num_epochs', type=int, default=10, help='Epochs for iteration')
+    parser.add_argument('--batch_size', type=int, default=1, help='Batch size for DataLoader')
+    parser.add_argument('--num_workers', type=int, default=1, help='Number of workers for DataLoader')
+    args = parser.parse_args()
+    
+    unet_btcv(args=args)

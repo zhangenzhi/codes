@@ -60,16 +60,16 @@ train_transforms = Compose(
             clip=True,
         ),
         CropForegroundd(keys=["image", "label"], source_key="image"),
-        RandCropByPosNegLabeld(
-            keys=["image", "label"],
-            label_key="label",
-            spatial_size=(96, 96, 96),
-            pos=1,
-            neg=1,
-            num_samples=4,
-            image_key="image",
-            image_threshold=0,
-        ),
+        # RandCropByPosNegLabeld(
+        #     keys=["image", "label"],
+        #     label_key="label",
+        #     spatial_size=(96, 96, 96),
+        #     pos=1,
+        #     neg=1,
+        #     num_samples=4,
+        #     image_key="image",
+        #     image_threshold=0,
+        # ),
         RandFlipd(
             keys=["image", "label"],
             spatial_axis=[0],
@@ -124,15 +124,15 @@ def btcv(args):
         transform=train_transforms,
         cache_num=24,
         cache_rate=1.0,
-        num_workers=8,
+        num_workers=1,
     )
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=1, pin_memory=True)
     val_ds = CacheDataset(data=val_files, 
                           transform=val_transforms, 
                           cache_num=6, 
                           cache_rate=1.0, 
-                          num_workers=4)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
+                          num_workers=1)
+    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
     dataloaders = {'train': train_loader,  'val': val_loader}
     return dataloaders
 
@@ -165,37 +165,17 @@ def visualize(val_ds):
 def btcv_iter(args):
 
     dataloaders = btcv(args=args)
-    # visualize(val_ds=datasets["val"])
-    for input in dataloaders["train"]:
-        print(input)
-
-    # img = datasets["val"][0]["image"]
-    # label = datasets["val"][0]["label"]
-    # plt.figure("image", (18, 6))
-    # plt.subplot(2, 2, 1)
-    # plt.imshow(img[0, :, :, 170].detach().cpu(), cmap="gray")
-    # plt.subplot(2, 2, 3)
-    # plt.imshow(label[0, :, :, 170].detach().cpu())
-    # img = datasets["val"][1]["image"]
-    # label = datasets["val"][1]["label"]
-    # plt.subplot(2, 2, 2)
-    # plt.imshow(img[0, :, :, 170].detach().cpu(), cmap="gray")
-    # plt.subplot(2, 2, 4)
-    # plt.imshow(label[0, :, :, 170].detach().cpu())
-    # plt.title("image")
-    # plt.savefig("btcv_train_{}.png".format(0))
     
     # Example usage:
     # Iterate through the dataloaders
-    # import time
-    # for e in range(args.num_epochs):
-    #     start_time = time.time()
-    #     for phase in ['train', 'val']:
-    #         for step, sample in enumerate(datasets[phase]):
-    #             if step%8==0:
-    #                 print(sample.keys())
-    #                 print([v.shape for v in sample.values()])
-    #     print("Time cost for loading {}".format(time.time() - start_time))
+    import time
+    for e in range(args.num_epochs):
+        start_time = time.time()
+        for phase in ['train', 'val']:
+            for step, sample in enumerate(dataloaders[phase]):
+                if step%6==0:
+                    print(step, sample["image"].shape, sample["label"].shape)
+        print("Time cost for loading {}".format(time.time() - start_time))
 
 if __name__ == "__main__":
     import argparse
