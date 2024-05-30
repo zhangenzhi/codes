@@ -8,7 +8,6 @@ import sys
 sys.path.append("./")
 import matplotlib.pyplot as plt
 
-from model.unet3d import create_unet3d_model
 from dataset.btcv import btcv
 
 from monai.losses import DiceCELoss
@@ -50,7 +49,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_dice = 0.0
-    logging.info("Training the Unet3d model for {} epochs...".format(num_epochs))
+    logging.info("Training the Unetr model for {} epochs...".format(num_epochs))
 
     for epoch in range(num_epochs):
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
@@ -86,7 +85,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
         # Save the best model based on validation accuracy
         if mean_dice_val > best_val_dice:
             best_val_dice = mean_dice_val
-            torch.save(model.state_dict(), "best_unet3d_model.pth")
+            torch.save(model.state_dict(), "best_unetr_model.pth")
 
         logging.info('Finished Training Step %d' % (epoch + 1))
 
@@ -148,16 +147,28 @@ def visualize(val_ds, model):
         plt.savefig("btcv_best-4.png")
         plt.close()
         
-def unet3d_btcv(args):
+def unetr_btcv(args):
     
     log(args=args)
+    from monai.networks.nets import UNETR
     
     # Create DataLoader for training and validation
     dataloaders = btcv(args=args)
     
     # Create Unet model
-    model = create_unet3d_model(n_channels=1, n_classes=14)
-    model.to(device)
+    model = UNETR(
+    in_channels=1,
+    out_channels=14,
+    img_size=(96, 96, 96),
+    feature_size=16,
+    hidden_size=768,
+    mlp_dim=3072,
+    num_heads=12,
+    pos_embed="perceptron",
+    norm_name="instance",
+    res_block=True,
+    dropout_rate=0.0,
+    ).to(device)
     
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
@@ -173,11 +184,11 @@ def unet3d_btcv(args):
 if __name__=="__main__":
     import argparse
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
-    parser.add_argument('--logname', type=str, default='unet3d_btcv.log', help='logging of task.')
+    parser.add_argument('--logname', type=str, default='unetr_btcv.log', help='logging of task.')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/btcv/data', help='Path to the BTCV dataset directory')
     parser.add_argument('--num_epochs', type=int, default=10, help='Epochs for iteration')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=1, help='Number of workers for DataLoader')
     args = parser.parse_args()
     
-    unet3d_btcv(args=args)
+    unetr_btcv(args=args)

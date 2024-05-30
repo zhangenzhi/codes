@@ -7,6 +7,7 @@ from dataset.btcv import btcv_iter
 from train.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.unet3d_btcv import unet3d_btcv
+from train.unetr_btcv import unetr_btcv
 
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
@@ -37,6 +38,8 @@ def main(args):
         unet3d_btcv(args=args)
     elif args.task == "unet3d_btcv_ddp":
         unet3d_btcv(args=args)
+    elif args.task == "unetr_btcv":
+        unetr_btcv(args=args)
     else:
         raise "No such task."
     
