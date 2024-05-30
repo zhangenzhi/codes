@@ -21,6 +21,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 post_label = AsDiscrete(to_onehot=14)
 post_pred = AsDiscrete(argmax=True, to_onehot=14)
 
+# Configure logging
+import logging
+def log(args):
+    logging.basicConfig(
+        filename=args.logname,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
 def train_model(model, train_loader, val_loader, criterion, dice_metric, optimizer, num_epochs):
     """
     Trains the ViT model on the ImageNet dataset with validation.
@@ -39,7 +48,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_dice = 0.0
-    print("Training the Unet3d model for {} epochs...".format(num_epochs))
+    logging.info("Training the Unet3d model for {} epochs...".format(num_epochs))
 
     for epoch in range(num_epochs):
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
@@ -62,21 +71,21 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
 
             # Print training progress (optional)
             running_loss += loss.item()
-            if i % 16 == 15:  # Print every 100 mini-batches
+            if i % 3 == 2:  # Print every 3 mini-batches
                 print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 100))
+                      (epoch + 1, i + 1, running_loss / 3))
                 running_loss = 0.0
 
         # Validate after each epoch
         mean_dice_val = evaluate_model(model, val_loader, dice_metric)
-        print("Validation Dice: {:.4f}".format(mean_dice_val))
+        logging.info("Validation Dice: {:.4f}".format(mean_dice_val))
 
         # Save the best model based on validation accuracy
         if mean_dice_val > best_val_dice:
             best_val_dice = mean_dice_val
             torch.save(model.state_dict(), "best_unet3d_model.pth")
 
-        print('Finished Training Step %d' % (epoch + 1))
+        logging.info('Finished Training Step %d' % (epoch + 1))
 
     print('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_dice))
 
@@ -125,7 +134,7 @@ def unet3d_btcv(args):
 if __name__=="__main__":
     import argparse
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
-    parser.add_argument('--logname', type=str, default='train.log', help='logging of task.')
+    parser.add_argument('--logname', type=str, default='unet3d_btcv.log', help='logging of task.')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/btcv/data', help='Path to the BTCV dataset directory')
     parser.add_argument('--num_epochs', type=int, default=10, help='Epochs for iteration')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size for DataLoader')

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A bif146
-#SBATCH -o unet_btcv.o%J
+#SBATCH -o unet3d_btcv.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -21,7 +21,7 @@ module load rocm/5.7.0
 
 python main.py \
     --task unet3d_btcv \
-    --pretrained True \
+    --logname train-1g.log\
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
     --batch_size 1 \
     --num_workers 4 \
