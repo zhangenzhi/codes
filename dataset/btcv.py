@@ -129,7 +129,7 @@ def btcv(args):
         cache_rate=1.0,
         num_workers=1,
     )
-    train_loader = DataLoader(train_ds, batch_size=1, shuffle=True, num_workers=1, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=1, pin_memory=True)
     val_ds = CacheDataset(data=val_files, 
                           transform=val_transforms, 
                           cache_num=6, 
