@@ -60,8 +60,6 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             images = images.to(device)
             labels = labels.to(device)
 
-            # import pdb
-            # pdb.set_trace()
             
             # Forward pass, calculate loss
             outputs = model(images)
@@ -75,7 +73,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             # Print training progress (optional)
             running_loss += loss.item()
             if i % 3 == 2:  # Print every 3 mini-batches
-                print('[%d, %5d] loss: %.3f' %
+                print('[%d, %5d] dice loss: %.3f' %
                       (epoch + 1, i + 1, running_loss / 3))
                 running_loss = 0.0
 
@@ -118,7 +116,9 @@ def evaluate_model(model, val_loader, dice_metric):
     return mean_dice_val
 
 def unet3d_btcv(args):
-
+    
+    log(args=args)
+    
     # Create DataLoader for training and validation
     dataloaders = btcv(args=args)
     
