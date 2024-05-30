@@ -25,4 +25,4 @@ python main.py \
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
     --batch_size 4 \
     --num_workers 4 \
-    --num_epochs 30
+    --num_epochs 300
