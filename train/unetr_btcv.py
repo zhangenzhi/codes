@@ -31,7 +31,7 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
     
-def train_model(model, train_loader, val_loader, criterion, dice_metric, optimizer, num_epochs):
+def train_model(model, train_loader, val_loader, criterion, dice_metric, optimizer, num_epochs, output):
     """
     Trains the ViT model on the ImageNet dataset with validation.
 
@@ -85,8 +85,8 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
         # Save the best model based on validation accuracy
         if mean_dice_val > best_val_dice:
             best_val_dice = mean_dice_val
-            visualize(val_loader=val_loader,model=model, path=os.path.join(args.output, "btcv-unetr-{}".format(epoch)))
-            torch.save(model.state_dict(), os.path.join(args.output, "best_unetr_model.pth"))
+            visualize(val_loader=val_loader,model=model, path=os.path.join(output, "btcv-unetr-{}".format(epoch)))
+            torch.save(model.state_dict(), os.path.join(output, "best_unetr_model.pth"))
 
         logging.info('Finished Training Step %d' % (epoch + 1))
 
@@ -176,7 +176,8 @@ def unetr_btcv(args):
     dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
 
     # Train the model
-    train_model(model, dataloaders['train'], dataloaders['val'], criterion, dice_metric, optimizer, args.num_epochs)
+    train_model(model, dataloaders['train'], dataloaders['val'], criterion, dice_metric, optimizer, 
+                args.num_epochs, output=args.output)
 
     # Visualize prediction
     model.load_state_dict(torch.load(os.path.join(args.output, "best_unetr_model.pth")))
