@@ -128,13 +128,10 @@ def visualize(val_loader, model, path="btcv-unetr"):
     }
     model.eval()
     with torch.no_grad():
-        for i, batch in enumerate(val_loader):
-            import pdb
-            pdb.set_trace()
-            
-            img_name = os.path.split(batch["image"].meta["filename_or_obj"])[1]
-            img = batch["image"]
-            label = batch["label"]
+        for i, batch in enumerate(val_loader):            
+            img_name = os.path.split(batch["image"].meta["filename_or_obj"][0])[1]
+            img = batch["image"][0]
+            label = batch["label"][0]
             val_inputs = torch.unsqueeze(img, 1).to(device)
             val_labels = torch.unsqueeze(label, 1).to(device)
             val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model, overlap=0.8)
@@ -147,6 +144,7 @@ def visualize(val_loader, model, path="btcv-unetr"):
             plt.imshow(val_labels.cpu().numpy()[0, 0, :, :, slice_map[img_name]])
             plt.subplot(1, 3, 3)
             plt.title("output")
+            plt.imshow(torch.argmax(val_outputs, dim=1).detach().cpu()[0, :, :, slice_map[img_name]])
             plt.savefig("{}-{}.png".format(path, i))
             plt.close()
         
