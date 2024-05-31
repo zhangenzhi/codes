@@ -21,6 +21,7 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=8, help='Number of workers for DataLoader')
     parser.add_argument('--pretrained', type=bool, default=False, help='Use pretrained weights')
+    parser.add_argument('--reload', type=bool, default=False, help='Reuse previous weights')
     parser.add_argument('--2d', type=bool, default=True, help='Use flat the 3d mri image to 2d.')
     
     args = parser.parse_args()
