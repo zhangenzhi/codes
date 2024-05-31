@@ -170,7 +170,7 @@ def unetr_btcv(args):
         dropout_rate=0.0,
     ).to(device)
     if args.reload:
-        model.load_state_dict(torch.load(os.path.join(args.output, "best_unet3d_model.pth")))
+        model.load_state_dict(torch.load(os.path.join(args.output, "best_unetr_model.pth")))
         
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
