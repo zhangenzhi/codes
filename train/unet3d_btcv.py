@@ -159,7 +159,7 @@ def unet3d_btcv(args):
     model = UNet(
     spatial_dims=3,
     in_channels=1,
-    out_channels=1,
+    out_channels=14,
     channels=(16, 32, 64, 128, 256),
     strides=(2, 2, 2, 2),
     num_res_units=2,
@@ -167,7 +167,7 @@ def unet3d_btcv(args):
     
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr = 1e-3)
     dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
 
     # Train the model
