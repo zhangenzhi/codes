@@ -62,21 +62,21 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             labels = labels.to(device)
 
             
-            # # Forward pass, calculate loss
-            # outputs = model(images)
-            # loss = criterion(outputs, labels)
+            # Forward pass, calculate loss
+            outputs = model(images)
+            loss = criterion(outputs, labels)
 
-            # # Backward pass and optimize
-            # optimizer.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+            # Backward pass and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-            # # Print training progress (optional)
-            # running_loss += loss.item()
-            # if i % 3 == 2:  # Print every 3 mini-batches
-            #     logging.info('[%d, %5d] dice loss: %.3f' %
-            #           (epoch + 1, i + 1, running_loss / 3))
-            #     running_loss = 0.0
+            # Print training progress (optional)
+            running_loss += loss.item()
+            if i % 8 == 7:  # Print every 8 mini-batches
+                logging.info('[%d, %5d] dice loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 7))
+                running_loss = 0.0
 
         # Validate after each epoch
         mean_dice_val = evaluate_model(model, val_loader, dice_metric)
@@ -101,7 +101,6 @@ def evaluate_model(model, val_loader, dice_metric):
         val_loader (DataLoader): The
             # Put model in evaluation mode
     """
-    
     model.eval()
     
     with torch.no_grad():
