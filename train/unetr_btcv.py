@@ -85,7 +85,8 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
         # Save the best model based on validation accuracy
         if mean_dice_val > best_val_dice:
             best_val_dice = mean_dice_val
-            torch.save(model.state_dict(), "best_unetr_model.pth")
+            visualize(val_loader=val_loader,model=model, path=os.path.join(args.output, "btcv-unetr-{}".format(epoch)))
+            torch.save(model.state_dict(), os.path.join(args.output, "best_unetr_model.pth"))
 
         logging.info('Finished Training Step %d' % (epoch + 1))
 
@@ -116,7 +117,7 @@ def evaluate_model(model, val_loader, dice_metric):
         dice_metric.reset()
     return mean_dice_val
 
-def visualize(val_ds, model):
+def visualize(val_loader, model, path="btcv-unetr"):
     slice_map = {
         "img0035.nii.gz": 170,
         "img0036.nii.gz": 230,
@@ -125,27 +126,26 @@ def visualize(val_ds, model):
         "img0039.nii.gz": 204,
         "img0040.nii.gz": 180,
     }
-    case_num = 4
-    model.load_state_dict(torch.load(os.path.join("./", "best_unetr_model.pth")))
     model.eval()
     with torch.no_grad():
-        img_name = os.path.split(val_ds[case_num]["image"].meta["filename_or_obj"])[1]
-        img = val_ds[case_num]["image"]
-        label = val_ds[case_num]["label"]
-        val_inputs = torch.unsqueeze(img, 1).cuda()
-        val_labels = torch.unsqueeze(label, 1).cuda()
-        val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model, overlap=0.8)
-        plt.figure("check", (18, 6))
-        plt.subplot(1, 3, 1)
-        plt.title("image")
-        plt.imshow(val_inputs.cpu().numpy()[0, 0, :, :, slice_map[img_name]], cmap="gray")
-        plt.subplot(1, 3, 2)
-        plt.title("label")
-        plt.imshow(val_labels.cpu().numpy()[0, 0, :, :, slice_map[img_name]])
-        plt.subplot(1, 3, 3)
-        plt.title("output")
-        plt.savefig("btcv_unetr_best-4.png")
-        plt.close()
+        for i, batch in enumerate(val_loader):
+            img_name = os.path.split(batch["image"].meta["filename_or_obj"])[1]
+            img = batch["image"]
+            label = batch["label"]
+            val_inputs = torch.unsqueeze(img, 1).cuda()
+            val_labels = torch.unsqueeze(label, 1).cuda()
+            val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model, overlap=0.8)
+            plt.figure("check", (18, 6))
+            plt.subplot(1, 3, 1)
+            plt.title("image")
+            plt.imshow(val_inputs.cpu().numpy()[0, 0, :, :, slice_map[img_name]], cmap="gray")
+            plt.subplot(1, 3, 2)
+            plt.title("label")
+            plt.imshow(val_labels.cpu().numpy()[0, 0, :, :, slice_map[img_name]])
+            plt.subplot(1, 3, 3)
+            plt.title("output")
+            plt.savefig("{}-{}.png".format(path, i))
+            plt.close()
         
 def unetr_btcv(args):
     
@@ -179,7 +179,8 @@ def unetr_btcv(args):
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, dice_metric, optimizer, args.num_epochs)
 
     # Visualize prediction
-    visualize(datasets["val"], model=model)
+    model.load_state_dict(torch.load(os.path.join(args.output, "best_unetr_model.pth")))
+    visualize(datasets["val"], model=model, path=os.path.join(args.output, "best"))
     
 if __name__=="__main__":
     import argparse

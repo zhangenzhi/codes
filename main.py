@@ -1,5 +1,5 @@
+import os
 import argparse
-
 
 from dataset.imagenet import imagenet_iter
 from dataset.btcv import btcv_iter
@@ -13,6 +13,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
     parser.add_argument('--logname', type=str, default='train.log', help='logging of task.')
+    parser.add_argument('--output', type=str, default='./output', help='output dir')
     parser.add_argument('--gpus', type=int, default=8, help='Epochs for iteration')
     parser.add_argument('--nodes', type=int, default=1, help='Epochs for iteration')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')
@@ -26,6 +27,9 @@ def parse_args():
     return args
 
 def main(args):
+    args.output = os.path.join(args.output, args.task)
+    os.makedirs(args.output, exist_ok=True)
+    
     if args.task == "imagenet":
         imagenet_iter(args=args)
     elif args.task == "vit_imagenet":
