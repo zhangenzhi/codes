@@ -26,7 +26,7 @@ post_pred = AsDiscrete(argmax=True, to_onehot=14)
 import logging
 def log(args):
     logging.basicConfig(
-        filename=args.logname,
+        filename=os.path.join(args.output, args.logname),
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
@@ -62,21 +62,21 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             labels = labels.to(device)
 
             
-            # Forward pass, calculate loss
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            # # Forward pass, calculate loss
+            # outputs = model(images)
+            # loss = criterion(outputs, labels)
 
-            # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            # # Backward pass and optimize
+            # optimizer.zero_grad()
+            # loss.backward()
+            # optimizer.step()
 
-            # Print training progress (optional)
-            running_loss += loss.item()
-            if i % 3 == 2:  # Print every 3 mini-batches
-                logging.info('[%d, %5d] dice loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 3))
-                running_loss = 0.0
+            # # Print training progress (optional)
+            # running_loss += loss.item()
+            # if i % 3 == 2:  # Print every 3 mini-batches
+            #     logging.info('[%d, %5d] dice loss: %.3f' %
+            #           (epoch + 1, i + 1, running_loss / 3))
+            #     running_loss = 0.0
 
         # Validate after each epoch
         mean_dice_val = evaluate_model(model, val_loader, dice_metric)
@@ -106,7 +106,7 @@ def evaluate_model(model, val_loader, dice_metric):
     
     with torch.no_grad():
         for batch in val_loader:
-            val_inputs, val_labels = (batch["image"].cuda(), batch["label"].cuda())
+            val_inputs, val_labels = (batch["image"].to(device), batch["label"].to(device))
             val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model)
             val_labels_list = decollate_batch(val_labels)
             val_labels_convert = [post_label(val_label_tensor) for val_label_tensor in val_labels_list]
@@ -129,11 +129,14 @@ def visualize(val_loader, model, path="btcv-unetr"):
     model.eval()
     with torch.no_grad():
         for i, batch in enumerate(val_loader):
+            import pdb
+            pdb.set_trace()
+            
             img_name = os.path.split(batch["image"].meta["filename_or_obj"])[1]
             img = batch["image"]
             label = batch["label"]
-            val_inputs = torch.unsqueeze(img, 1).cuda()
-            val_labels = torch.unsqueeze(label, 1).cuda()
+            val_inputs = torch.unsqueeze(img, 1).to(device)
+            val_labels = torch.unsqueeze(label, 1).to(device)
             val_outputs = sliding_window_inference(val_inputs, (96, 96, 96), 4, model, overlap=0.8)
             plt.figure("check", (18, 6))
             plt.subplot(1, 3, 1)
@@ -187,9 +190,10 @@ if __name__=="__main__":
     import argparse
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--logname', type=str, default='unetr_btcv.log', help='logging of task.')
+    parser.add_argument('--output', type=str, default='./output', help='output dir')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/btcv/data', help='Path to the BTCV dataset directory')
     parser.add_argument('--num_epochs', type=int, default=10, help='Epochs for iteration')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size for DataLoader')
+    parser.add_argument('--batch_size', type=int, default=4, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=1, help='Number of workers for DataLoader')
     args = parser.parse_args()
     
