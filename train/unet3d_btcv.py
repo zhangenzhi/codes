@@ -165,6 +165,9 @@ def unet3d_btcv(args):
     num_res_units=2,
     ).to(device)
     
+    if args.reload:
+        model.load_state_dict(torch.load(os.path.join(args.output, "best_unet3d_model.pth")))
+        
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
     optimizer = torch.optim.Adam(model.parameters(), lr = 1e-3)
