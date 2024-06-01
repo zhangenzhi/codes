@@ -75,7 +75,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             running_loss += loss.item()
             if i % 8 == 7:  # Print every 8 mini-batches
                 logging.info('[%d, %5d] dice loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 7))
+                      (epoch + 1, i + 1, running_loss / 8))
                 running_loss = 0.0
 
         # Validate after each epoch

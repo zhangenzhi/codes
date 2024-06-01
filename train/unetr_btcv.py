@@ -75,7 +75,7 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             running_loss += loss.item()
             if i % 8 == 7:  # Print every 8 mini-batches
                 logging.info('[%d, %5d] dice loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 7))
+                      (epoch + 1, i + 1, running_loss / 8))
                 running_loss = 0.0
 
         # Validate after each epoch
@@ -174,7 +174,7 @@ def unetr_btcv(args):
         
     # Define loss function and optimizer
     criterion = DiceCELoss(to_onehot_y=True, softmax=True)
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-5)
     dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
 
     # Train the model
