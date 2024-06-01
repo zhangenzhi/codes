@@ -22,7 +22,7 @@ module load rocm/5.7.0
 python main.py \
     --task unetr_opt \
     --data_dir /lustre/orion/bif146/world-shared/enzhi/btcv/data \
-    --reload False \
+    --reload True \
     --batch_size 1 \
     --num_workers 4 \
     --num_epochs 300
