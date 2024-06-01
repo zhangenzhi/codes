@@ -127,15 +127,15 @@ def btcv(args):
         transform=train_transforms,
         cache_num=24,
         cache_rate=1.0,
-        num_workers=1,
+        num_workers=8,
     )
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=1, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=8, pin_memory=True)
     val_ds = CacheDataset(data=val_files, 
                           transform=val_transforms, 
                           cache_num=6, 
                           cache_rate=1.0, 
-                          num_workers=1)
-    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
+                          num_workers=4)
+    val_loader = DataLoader(val_ds, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
     dataloaders = {'train': train_loader,  'val': val_loader}
     datasets = {'train': train_ds,  'val': val_ds}
     return dataloaders, datasets
