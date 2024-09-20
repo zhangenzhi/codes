@@ -22,7 +22,7 @@ module load gcc/12.2.0
 module load rocm/5.7.0
 
 srun -N 2 -n 16 --ntasks-per-node 8 python main.py \
-    --task vit_ddp \
+    --task vit_imagenet_ddp \
     --logname train-32-p.log\
     --gpus 8\
     --nodes 2\
