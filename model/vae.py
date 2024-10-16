@@ -75,7 +75,7 @@ def vae_loss(x_recon, x, mu, logvar):
 
 # Training settings
 latent_dim = 128
-hidden_dim = 512 * 16  # This is flexible based on the decoder architecture
+hidden_dim = 512 * 7 * 7  # This is flexible based on the decoder architecture
 output_channels = 3  # For RGB images
 img_size = 224  # Size of ImageNet images
 learning_rate = 1e-4
