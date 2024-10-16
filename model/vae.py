@@ -41,8 +41,8 @@ class Decoder(nn.Module):
         self.img_size = img_size
     
     def forward(self, z):
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         
         h = torch.relu(self.fc(z))
         h = h.view(-1, 512, 14, 14)
