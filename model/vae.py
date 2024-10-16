@@ -45,7 +45,7 @@ class Decoder(nn.Module):
         pdb.set_trace()
         
         h = torch.relu(self.fc(z))
-        h = h.view(-1, h.size(1) // 16, self.img_size // 16, self.img_size // 16)
+        h = h.view(-1, 512, 7, 7)
         x_recon = self.deconv(h)
         return x_recon
 
