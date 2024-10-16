@@ -21,26 +21,25 @@ class ResNetEncoder(nn.Module):
         logvar = self.fc_logvar(x)
         return mu, logvar
 
-# Define the decoder network
 class Decoder(nn.Module):
     def __init__(self, latent_dim, hidden_dim, output_channels, img_size):
         super(Decoder, self).__init__()
         self.fc = nn.Linear(latent_dim, hidden_dim)
         self.deconv = nn.Sequential(
-            nn.ConvTranspose2d(hidden_dim // 16, hidden_dim // 8, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(hidden_dim // 8),
+            nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(256),
             nn.ReLU(True),
-            nn.ConvTranspose2d(hidden_dim // 8, hidden_dim // 4, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(hidden_dim // 4),
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(True),
-            nn.ConvTranspose2d(hidden_dim // 4, output_channels, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(128, output_channels, kernel_size=4, stride=2, padding=1),
             nn.Sigmoid()  # To ensure the output is between 0 and 1
         )
         self.img_size = img_size
     
     def forward(self, z):
         h = torch.relu(self.fc(z))
-        h = h.view(-1, h.size(1) // 16, self.img_size // 16, self.img_size // 16)
+        h = h.view(-1, 512, 7, 7)  # Reshape to match the first ConvTranspose2d input
         x_recon = self.deconv(h)
         return x_recon
 
