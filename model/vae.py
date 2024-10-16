@@ -10,12 +10,13 @@ class ResNetEncoder(nn.Module):
         super(ResNetEncoder, self).__init__()
         resnet = models.resnet50(pretrained=True)  # Use ResNet-50, or resnet18 for smaller model
         self.resnet = nn.Sequential(*list(resnet.children())[:-2])  # Remove fully connected layers
-        self.fc_mu = nn.Linear(resnet.fc.in_features, latent_dim)  # Mean
-        self.fc_logvar = nn.Linear(resnet.fc.in_features, latent_dim)  # Log variance
+        self.flatten = nn.Flatten()  # Flatten the output feature map
+        self.fc_mu = nn.Linear(2048 * 7 * 7, latent_dim)  # Mean
+        self.fc_logvar = nn.Linear(2048 * 7 * 7, latent_dim)  # Log variance
     
     def forward(self, x):
         x = self.resnet(x)  # Extract features using ResNet backbone
-        x = torch.flatten(x, 1)  # Flatten the features
+        x = self.flatten(x)  # Flatten the features
         mu = self.fc_mu(x)
         logvar = self.fc_logvar(x)
         return mu, logvar
