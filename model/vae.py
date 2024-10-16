@@ -15,8 +15,6 @@ class ResNetEncoder(nn.Module):
         self.fc_logvar = nn.Linear(2048 * 7 * 7, latent_dim)  # Log variance
     
     def forward(self, x):
-        import pdb
-        pdb.set_trace()
         x = self.resnet(x)  # Extract features using ResNet backbone
         x = self.flatten(x)  # Flatten the features
         mu = self.fc_mu(x)
@@ -44,7 +42,7 @@ class Decoder(nn.Module):
         pdb.set_trace()
         
         h = torch.relu(self.fc(z))
-        h = h.view(-1, 512, 7, 7)
+        h = h.view(-1, 512, 14, 14)
         x_recon = self.deconv(h)
         return x_recon
 
@@ -74,7 +72,7 @@ def vae_loss(x_recon, x, mu, logvar):
 
 # Training settings
 latent_dim = 128
-hidden_dim = 512 * 7 * 7  # This is flexible based on the decoder architecture
+hidden_dim = 512 * 14 * 14  # This is flexible based on the decoder architecture
 output_channels = 3  # For RGB images
 img_size = 224  # Size of ImageNet images
 learning_rate = 1e-4
