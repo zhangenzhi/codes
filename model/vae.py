@@ -16,7 +16,7 @@ class ResNetEncoder(nn.Module):
     
     def forward(self, x):
         import pdb
-        pdb.set_trace
+        pdb.set_trace()
         x = self.resnet(x)  # Extract features using ResNet backbone
         x = self.flatten(x)  # Flatten the features
         mu = self.fc_mu(x)
@@ -42,7 +42,7 @@ class Decoder(nn.Module):
     
     def forward(self, z):
         import pdb
-        pdb.set_trace
+        pdb.set_trace()
         
         h = torch.relu(self.fc(z))
         h = h.view(-1, h.size(1) // 16, self.img_size // 16, self.img_size // 16)
