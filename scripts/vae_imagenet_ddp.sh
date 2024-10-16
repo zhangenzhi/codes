@@ -27,5 +27,5 @@ module load rocm/5.7.0
 srun -N 1 -n 8 --ntasks-per-node 8 /lustre/orion/bif146/world-shared/gvit/env/miniconda3/envs/gvit/bin/python ./train/vae_imagenet_ddp.py \
         --data_dir=/lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
         --epoch=100 \
-        --batch_size=16 \
+        --batch_size=4 \
         --savefile=./vae_imagenet_n1
