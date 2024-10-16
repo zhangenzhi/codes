@@ -81,6 +81,7 @@ img_size = 224  # Size of ImageNet images
 learning_rate = 1e-4
 batch_size = 64
 epochs = 10
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define data transformations for ImageNet
 transform = transforms.Compose([
@@ -95,6 +96,7 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, nu
 
 # Initialize the VAE model, optimizer, and loss function
 vae = VAE(latent_dim, hidden_dim, output_channels, img_size)
+vae = vae.to(device=device)
 optimizer = optim.Adam(vae.parameters(), lr=learning_rate)
 
 # Training loop
