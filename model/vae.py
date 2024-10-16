@@ -15,6 +15,8 @@ class ResNetEncoder(nn.Module):
         self.fc_logvar = nn.Linear(2048 * 7 * 7, latent_dim)  # Log variance
     
     def forward(self, x):
+        import pdb
+        pdb.set_trace
         x = self.resnet(x)  # Extract features using ResNet backbone
         x = self.flatten(x)  # Flatten the features
         mu = self.fc_mu(x)
@@ -39,6 +41,9 @@ class Decoder(nn.Module):
         self.img_size = img_size
     
     def forward(self, z):
+        import pdb
+        pdb.set_trace
+        
         h = torch.relu(self.fc(z))
         h = h.view(-1, h.size(1) // 16, self.img_size // 16, self.img_size // 16)
         x_recon = self.deconv(h)
