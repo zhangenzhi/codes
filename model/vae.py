@@ -85,7 +85,7 @@ transform = transforms.Compose([
 ])
 
 # Load ImageNet dataset
-train_dataset = datasets.ImageFolder(root='path_to_imagenet_train', transform=transform)
+train_dataset = datasets.ImageFolder(root='/lustre/orion/bif146/world-shared/enzhi/imagenet2012', transform=transform)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
 # Initialize the VAE model, optimizer, and loss function
