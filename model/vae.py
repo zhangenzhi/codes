@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 class ResNetEncoder(nn.Module):
     def __init__(self, latent_dim):
         super(ResNetEncoder, self).__init__()
-        resnet = models.resnet50(pretrained=True)  # Use ResNet-50, or resnet18 for smaller model
+        resnet = models.resnet50(pretrained=False)  # Use ResNet-50, or resnet18 for smaller model
         self.resnet = nn.Sequential(*list(resnet.children())[:-2])  # Remove fully connected layers
         self.flatten = nn.Flatten()  # Flatten the output feature map
         self.fc_mu = nn.Linear(2048 * 7 * 7, latent_dim)  # Mean

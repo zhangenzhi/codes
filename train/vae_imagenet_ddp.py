@@ -39,8 +39,8 @@ def main(args, device_id):
     img_size = 224  # Size of ImageNet images
 
     model = VAE(latent_dim, hidden_dim, output_channels, img_size)
-    criterion = vae_loss
-    best_val_score = 0.0
+    # criterion = vae_loss
+    # best_val_score = 0.0
     
     # Move the model to GPU
     model.to(device_id)
@@ -130,16 +130,10 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str,  default="paip", help='name of the dataset.')
     parser.add_argument('--data_dir', default="./dataset/paip/output_images_and_masks", 
                         help='base path of dataset.')
-    parser.add_argument('--resolution', default=512, type=int,
-                        help='resolution of img.')
     parser.add_argument('--lr', default=1e-4, type=float,
                         help='resolution of img.')
-    parser.add_argument('--patch_size', default=8, type=int,
-                        help='patch size.')
-    parser.add_argument('--fixed_length', default=512, type=int,
-                        help='length of sequence.')
     parser.add_argument('--pretrain', default="sam-b", type=str,
-                        help='Use SAM pretrained weigths.')
+                        help='Use ResNet pretrained weigths.')
     parser.add_argument('--reload', default=True, type=bool,
                         help='Use reload val weigths.')
     parser.add_argument('--epoch', default=10, type=int,
