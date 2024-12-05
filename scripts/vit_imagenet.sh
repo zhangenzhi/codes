@@ -22,6 +22,7 @@ module load rocm/5.7.0
 python main.py \
     --task vit_imagenet \
     --data_dir /lustre/orion/bif146/world-shared/enzhi/imagenet2012 \
+    --pretrained False \
     --batch_size 32 \
     --num_workers 32 \
     --num_epochs 10
