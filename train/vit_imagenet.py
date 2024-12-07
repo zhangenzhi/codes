@@ -57,6 +57,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     Returns:
         None
     """
+    # Enable mixed precision
+    scaler = torch.cuda.amp.GradScaler()
+
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_acc = 0.0
@@ -66,17 +69,19 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
         for i, (images, labels) in enumerate(train_loader):
-            images = images.to(device)
-            labels = labels.to(device)
-
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
+            optimizer.zero_grad()   
+            
             # Forward pass, calculate loss
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            with torch.cuda.amp.autocast():
+                outputs = model(images)
+                loss = criterion(outputs, labels)
 
             # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             # Print training progress (optional)
             running_loss += loss.item()
@@ -115,7 +120,8 @@ def evaluate_model(model, val_loader):
         for images, labels in val_loader:
             images = images.to(device)
             labels = labels.to(device)
-            outputs = model(images)
+            with torch.cuda.amp.autocast():
+                outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
