@@ -88,8 +88,10 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Print training progress (optional)
             running_loss += loss.item()
             if i % 100 == 99:  # Print every 100 mini-batches
-                print('[%d, %5d] loss: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 100))
+                _, predicted = torch.max(outputs.data, 1)
+                correct += (predicted == labels).sum().item()
+                print('[%d, %5d] train loss: %.3f train acc: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
                 running_loss = 0.0
 
         # Validate after each epoch
