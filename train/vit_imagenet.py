@@ -70,6 +70,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         start_time = time.time()
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
+        correct = 0
         for i, (images, labels) in enumerate(train_loader):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
@@ -93,6 +94,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 print('[%d, %5d] train loss: %.3f train acc: %.3f' %
                       (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
                 running_loss = 0.0
+                correct = 0
 
         # Validate after each epoch
         model.eval()
