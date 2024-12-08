@@ -4,6 +4,7 @@ import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageNet  # Assuming you have ImageNet downloaded
 import timm
+import time
 
 from model.vit import create_vit_model
 from dataset.imagenet import imagenet
@@ -66,6 +67,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     print("Training the ViT model for {} epochs...".format(num_epochs))
 
     for epoch in range(num_epochs):
+        start_time = time.time()
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
         for i, (images, labels) in enumerate(train_loader):
@@ -92,7 +94,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
         # Validate after each epoch
         val_acc = evaluate_model(model, val_loader)
-        print("Validation Accuracy: {:.4f}".format(val_acc))
+        print("Validation Accuracy: {:.4f}, Time Cost:{}".format(val_acc, time.time()-start_time))
 
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
@@ -139,7 +141,7 @@ def vit_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
 
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs)

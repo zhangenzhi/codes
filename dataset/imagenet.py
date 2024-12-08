@@ -42,8 +42,9 @@ def imagenet(args):
 
     # Create data loaders
     shuffle = True
+    pin_memory  = True
     dataloaders = {x: DataLoader(image_datasets[x], batch_size=args.batch_size, shuffle=shuffle, 
-                                 num_workers=args.num_workers,pin_memory=False)
+                                 num_workers=args.num_workers,pin_memory=pin_memory)
                    for x in ['train', 'val']}
     return dataloaders
 
