@@ -2,7 +2,6 @@ import torch
 from torch import nn
 import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
-from torchvision.datasets import ImageNet  # Assuming you have ImageNet downloaded
 import timm
 import time
 
@@ -39,7 +38,8 @@ def create_vit_model(pretrained, num_classes=1000):
         # Modify the final classification head
         in_features = model.head.in_features
         model.head = nn.Linear(in_features, num_classes)
-
+        
+    model = nn.DataParallel(model)
     return model.to(device)
 
 
@@ -93,6 +93,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 running_loss = 0.0
 
         # Validate after each epoch
+        model.eval()
         val_acc = evaluate_model(model, val_loader)
         print("Validation Accuracy: {:.4f}, Time Cost:{}".format(val_acc, time.time()-start_time))
 
@@ -114,14 +115,12 @@ def evaluate_model(model, val_loader):
         val_loader (DataLoader): The
             # Put model in evaluation mode
     """
-    
-    model.eval()
     correct = 0
     total = 0
     with torch.no_grad():
         for images, labels in val_loader:
-            images = images.to(device)
-            labels = labels.to(device)
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
             with torch.cuda.amp.autocast():
                 outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
