@@ -5,7 +5,6 @@ import torchvision.transforms as transforms
 import timm
 import time
 
-from model.vit import create_vit_model
 from dataset.imagenet import imagenet
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -150,7 +149,7 @@ def vit_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(),lr=3e-4)
 
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs)
