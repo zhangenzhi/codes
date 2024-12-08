@@ -22,6 +22,6 @@
 python main.py \
     --task vit_imagenet \
     --data_dir ../dataset/imagenet2012 \
-    --batch_size 512 \
+    --batch_size 1024 \
     --num_workers 32 \
     --num_epochs 10
