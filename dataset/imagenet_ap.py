@@ -77,14 +77,17 @@ if __name__ == "__main__":
     test_size = val_size
     print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
     
-    train_indices = list(range(0, train_size))
-    val_indices = list(range(train_size, dataset_size))
-    train_set = Subset(datasets, train_indices)
-    val_set = test_set = Subset(datasets, val_indices)
-    # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=0, shuffle=True)
+    # Paths to the ImageNet directories
+    train_dir = os.path.join(args.data_dir,"train")
+    val_dir = os.path.join(args.data_dir,"val")
+
+    # Create datasets
+    train_set = ImageNetDataset(train_dir)
+    val_set = ImageNetDataset(val_dir)
+
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Example usage:
     # Iterate through the dataloaders
