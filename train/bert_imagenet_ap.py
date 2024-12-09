@@ -128,7 +128,7 @@ def bert_train(args):
     
     
     # Create Bert model
-    seq_length = 196
+    seq_length = 512
     num_classes = 1000
     model = BERTClassifier(seq_length=seq_length, num_classes=num_classes)
     model = nn.DataParallel(model)
@@ -136,7 +136,7 @@ def bert_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-3)
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
