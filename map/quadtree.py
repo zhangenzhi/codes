@@ -147,8 +147,10 @@ class FixedQuadTree:
     def serialize(self, img, size=(8,8,3)):
         
         seq_patch = []
+        seq_size = []
         for bbox,value in self.nodes:
             seq_patch.append(bbox.get_area(img))
+            seq_size.append(bbox.get_size()[0])
             
         h2,w2,c2 = size
         for i in range(len(seq_patch)):
@@ -162,12 +164,10 @@ class FixedQuadTree:
             pass
             # random_drop
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
-        return seq_patch
+        return seq_patch, seq_size
     
     def deserialize(self, seq, patch_size, channel):
 
-        # import pdb
-        # pdb.set_trace()
         H,W = self.domain.shape
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)

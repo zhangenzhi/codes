@@ -5,7 +5,7 @@ import random
 from map.quadtree import FixedQuadTree
 
 class Patchify(torch.nn.Module):
-    def __init__(self, sths=[1,3,5,7], fixed_length=256, cannys=[50, 100], patch_size=4) -> None:
+    def __init__(self, sths=[1,3,5,7], fixed_length=196, cannys=[50, 100], patch_size=16) -> None:
         super().__init__()
         
         self.sths = sths
@@ -23,9 +23,8 @@ class Patchify(torch.nn.Module):
         grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
         edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
         qdt = FixedQuadTree(domain=edges, fixed_length=self.fixed_length)
-        seq_img = qdt.serialize(img, size=(self.patch_size,self.patch_size,3))
+        seq_img, seq_size = qdt.serialize(img, size=(self.patch_size,self.patch_size,3))
         seq_img = np.asarray(seq_img)
         seq_img = np.reshape(seq_img, [self.patch_size, -1, 3])
-        
 
-        return seq_img, qdt
+        return seq_img, seq_size, qdt
