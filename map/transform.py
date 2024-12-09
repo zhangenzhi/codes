@@ -13,7 +13,7 @@ class Patchify(torch.nn.Module):
         self.cannys = [x for x in range(cannys[0], cannys[1], 1)]
         self.patch_size = patch_size
         
-    def forward(self, img, target):  # we assume inputs are always structured like this
+    def forward(self, img):  # we assume inputs are always structured like this
         # Do some transformations. Here, we're just passing though the input
         
         self.smooth_factor = random.choice(self.sths)
