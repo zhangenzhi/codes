@@ -22,7 +22,7 @@ class BERTClassifier(nn.Module):
             num_attention_heads=num_attention_heads,
             intermediate_size=hidden_size * 4,  # Default intermediate size
             max_position_embeddings=seq_length + 2,  # Account for [CLS] and [SEP]
-            vocab_size=30522,  # Vocabulary size; can be arbitrary since no pretraining
+            vocab_size=1024,  # Vocabulary size; can be arbitrary since no pretraining
             type_vocab_size=2,  # For token type embeddings (optional)
         )
 
