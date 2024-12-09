@@ -143,5 +143,5 @@ def bert_train(args):
     optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
 
     # Train the model
-    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, args.savefile)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, args.output)
 
