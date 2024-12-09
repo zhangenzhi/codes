@@ -3,4 +3,4 @@ python main.py \
     --data_dir ../dataset/imagenet2012 \
     --batch_size 512 \
     --num_workers 32 \
-    --num_epochs 10
+    --num_epochs 30
