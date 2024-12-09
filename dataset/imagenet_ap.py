@@ -24,7 +24,8 @@ class ImageNetDataset(Dataset):
         self.patchify = Patchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
-
+        import pdb
+        pdb.set_trace()
         # Glob all images and map class indices
         classes = sorted(os.listdir(root_dir))  # Get class directories
         self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(classes)}
@@ -64,8 +65,6 @@ def parse_args():
     args = parser.parse_args()
     return args        
 if __name__ == "__main__":
-    import pdb
-    pdb.set_trace()
     
     args = parse_args()
     # Paths to the ImageNet directories
