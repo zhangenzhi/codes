@@ -164,6 +164,7 @@ class FixedQuadTree:
             pass
             # random_drop
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
+        assert len(seq_size)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch, seq_size
     
     def deserialize(self, seq, patch_size, channel):
