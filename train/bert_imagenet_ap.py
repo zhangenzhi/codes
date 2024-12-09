@@ -41,11 +41,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         for i, (images, labels) in enumerate(train_loader):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
+            atten = torch.ones((images.size(0), images.size(1))).to(device, non_blocking=True)
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
             with torch.cuda.amp.autocast():
-                outputs = model(images, torch.ones((images.size(0), images.size(1))))
+                outputs = model(images, atten)
                 loss = criterion(outputs, labels)
 
             # Backward pass and optimize
@@ -94,8 +95,9 @@ def evaluate_model(model, val_loader, criterion):
         for images, labels in val_loader:
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
+            atten = torch.ones((images.size(0), images.size(1))).to(device, non_blocking=True)
             with torch.cuda.amp.autocast():
-                outputs = model(images, torch.ones((images.size(0), images.size(1)))
+                outputs = model(images,atten)
                 loss = criterion(outputs, labels)
                 
             num_iter += 1
