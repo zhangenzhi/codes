@@ -135,8 +135,8 @@ def bert_train(args):
     model = nn.DataParallel(model)
     model.to(device)
     if True:
-        if os.path.exists(os.path.join(args.savefile, "best_vit_model.pth")):
-            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_vit_model.pth")))
+        if os.path.exists(os.path.join(args.output, "best_vit_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.output, "best_vit_model.pth")))
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
