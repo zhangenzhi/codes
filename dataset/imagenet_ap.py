@@ -64,19 +64,8 @@ def parse_args():
     args = parser.parse_args()
     return args        
 if __name__ == "__main__":
-
-    import pdb
-    pdb.set_trace()
     
     args = parse_args()
-    datasets = ImageNetDataset(args.data_dir)
-    
-    dataset_size = len(datasets)
-    train_size = int(0.85 * dataset_size)
-    val_size = dataset_size - train_size
-    test_size = val_size
-    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
-    
     # Paths to the ImageNet directories
     train_dir = os.path.join(args.data_dir,"train")
     val_dir = os.path.join(args.data_dir,"val")
@@ -84,7 +73,11 @@ if __name__ == "__main__":
     # Create datasets
     train_set = ImageNetDataset(train_dir)
     val_set = ImageNetDataset(val_dir)
-
+    
+    train_size = len(train_set)
+    val_size = len(val_set)
+    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    
     train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
