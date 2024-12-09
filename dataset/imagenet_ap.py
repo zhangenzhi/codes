@@ -4,6 +4,7 @@ sys.path.append("./")
 import torch
 import os
 import glob
+import numpy as np
 from PIL import Image
 from torchvision import datasets, transforms
 from torch.utils.data.dataset import Subset
@@ -27,9 +28,6 @@ class ImageNetDataset(Dataset):
         # Glob all images and map class indices
         classes = sorted(os.listdir(root_dir))  # Get class directories
         self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(classes)}
-
-        import pdb
-        pdb.set_trace()
         
         for cls_name in classes:
             cls_dir = os.path.join(root_dir, cls_name)
@@ -46,6 +44,7 @@ class ImageNetDataset(Dataset):
 
         # Open image
         image = Image.open(img_path).convert("RGB")
+        image = np.array(image)
         seq_img, seq_size = self.patchify(image)
         
         # Apply transformations
