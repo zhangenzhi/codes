@@ -6,6 +6,7 @@ from dataset.btcv import btcv_iter
 
 from train.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
+from train.bert_imagenet_ap import bert_train
 from train.unet3d_btcv import unet3d_btcv
 from train.unetr_btcv import unetr_btcv
 
@@ -37,6 +38,8 @@ def main(args):
         vit_train(args=args)
     elif args.task == "vit_imagenet_ddp":
         vit_ddp(args=args)
+    elif args.task == "bert_imagenet_ap":
+        bert_train(args=args)
     elif args.task == "btcv":
         btcv_iter(args=args)
     elif args.task == "unet3d_btcv":
