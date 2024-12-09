@@ -11,7 +11,7 @@ from model.bert import BERTClassifier
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, savefile):
     """
     Trains the ViT model on the ImageNet dataset with validation.
 
@@ -72,7 +72,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), "best_vit_model.pth")
+            torch.save(model.state_dict(), os.path.join(savefile,"best_vit_model.pth"))
 
         print('Finished Training Step %d' % (epoch + 1))
 
@@ -134,11 +134,14 @@ def bert_train(args):
     model = BERTClassifier(seq_length=seq_length, num_classes=num_classes)
     model = nn.DataParallel(model)
     model.to(device)
+    if True:
+        if os.path.exists(os.path.join(args.savefile, "best_vit_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(args.savefile, "best_vit_model.pth")))
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
 
     # Train the model
-    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, args.savefile)
 
