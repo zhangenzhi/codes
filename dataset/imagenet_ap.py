@@ -55,6 +55,22 @@ class ImageNetDataset(Dataset):
 
         return seq_size, label
     
+def test_ap(root_dir):
+    patchify = Patchify()
+    classes = sorted(os.listdir(root_dir))  # Get class directories
+    image_paths = []
+    for cls_name in classes:
+        cls_dir = os.path.join(root_dir, cls_name)
+        for img_path in glob.glob(os.path.join(cls_dir, "*.JPEG")):  # Adjust extension if needed
+            image_paths.append(img_path)
+    for idx in range(len(image_paths)):
+        img_path = image_paths[idx]
+        # Open image
+        image = Image.open(img_path).convert("RGB")
+        image = np.array(image)
+        image = cv.resize(image, dsize=[256,256])
+        seq_img, seq_size,_ = patchify(image)
+    
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
@@ -71,26 +87,29 @@ if __name__ == "__main__":
     args = parse_args()
     # Paths to the ImageNet directories
     train_dir = os.path.join(args.data_dir, "train")
-    val_dir = os.path.join(args.data_dir,"val")
+    
+    test_ap(train_dir)
+    
+    # val_dir = os.path.join(args.data_dir,"val")
 
-    # Create datasets
-    train_set = ImageNetDataset(train_dir)
-    val_set = ImageNetDataset(val_dir)
+    # # Create datasets
+    # train_set = ImageNetDataset(train_dir)
+    # val_set = ImageNetDataset(val_dir)
     
-    train_size = len(train_set)
-    val_size = len(val_set)
-    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    # train_size = len(train_set)
+    # val_size = len(val_set)
+    # print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    # train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
+    # val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    # test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
-    # Example usage:
-    # Iterate through the dataloaders
-    import time
-    start_time = time.time()
-    for phase in ['train', 'val']:
-        for step, data in enumerate(train_loader):
-            if step%500==0:
-                print(step)
-    print("Time cost for loading {}".format(time.time() - start_time))
+    # # Example usage:
+    # # Iterate through the dataloaders
+    # import time
+    # start_time = time.time()
+    # for phase in ['train', 'val']:
+    #     for step, data in enumerate(train_loader):
+    #         if step%500==0:
+    #             print(step)
+    # print("Time cost for loading {}".format(time.time() - start_time))
