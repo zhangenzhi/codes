@@ -113,5 +113,5 @@ if __name__ == "__main__":
     for phase in ['train', 'val']:
         for step, data in enumerate(train_loader):
             if step%500==0:
-                print(step)
+                print("Step:{} Time cost for loading {}".format(step, time.time() - start_time))
     print("Time cost for loading {}".format(time.time() - start_time))
