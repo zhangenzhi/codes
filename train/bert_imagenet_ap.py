@@ -28,7 +28,6 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     """
     # Enable mixed precision
     scaler = torch.cuda.amp.GradScaler()
-
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_acc = 0.0
@@ -46,7 +45,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             
             # Forward pass, calculate loss
             with torch.cuda.amp.autocast():
-                outputs = model(images)
+                outputs = model(images, torch.ones((images.size(0), images.size(1))))
                 loss = criterion(outputs, labels)
 
             # Backward pass and optimize
@@ -96,7 +95,7 @@ def evaluate_model(model, val_loader, criterion):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
             with torch.cuda.amp.autocast():
-                outputs = model(images)
+                outputs = model(images, torch.ones((images.size(0), images.size(1)))
                 loss = criterion(outputs, labels)
                 
             num_iter += 1
