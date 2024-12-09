@@ -59,7 +59,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             if i % 100 == 99:  # Print every 100 mini-batches
                 _, predicted = torch.max(outputs.data, 1)
                 correct += (predicted == labels).sum().item()
-                print('[%d, %5d] train loss: %.3f train acc: %.3f' %
+                print('[%d, %5d] train loss: %.6f train acc: %.6f' %
                       (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
                 running_loss = 0.0
                 correct = 0
@@ -67,7 +67,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         # Validate after each epoch
         model.eval()
         val_acc,val_loss = evaluate_model(model, val_loader, criterion)
-        print("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
+        print("Val_Acc: {:.6f},Val_Loss: {:.6f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
 
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
@@ -76,7 +76,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
         print('Finished Training Step %d' % (epoch + 1))
 
-    print('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_acc))
+    print('Finished Training. Best Validation Accuracy: {:.6f}'.format(best_val_acc))
 
 def evaluate_model(model, val_loader, criterion):
     """
@@ -137,7 +137,7 @@ def bert_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-5)
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
