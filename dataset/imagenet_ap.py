@@ -71,7 +71,7 @@ def test_ap(root_dir):
         image = cv.resize(image, dsize=[256,256])
         seq_img, seq_size, _ = patchify(image)
         if len(seq_size) != 196:
-            print(len(seq_size), img_path)
+            print(len(seq_size), img_path, idx)
     
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
