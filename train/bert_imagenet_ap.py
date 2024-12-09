@@ -140,7 +140,7 @@ def bert_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=5e-5)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-6)
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, args.output)
