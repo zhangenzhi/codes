@@ -32,7 +32,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_acc = 0.0
-    print("Training the ViT model for {} epochs...".format(num_epochs))
+    print("Training the BERT model for {} epochs...".format(num_epochs))
 
     for epoch in range(num_epochs):
         start_time = time.time()

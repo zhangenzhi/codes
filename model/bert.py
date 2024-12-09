@@ -47,6 +47,9 @@ class BERTClassifier(nn.Module):
         Returns:
             torch.Tensor: Logits for each class of shape (batch_size, num_classes).
         """
+        import pdb
+        pdb.set_trace()
+        
         # BERT forward pass
         outputs = self.bert(
             input_ids=input_ids,
