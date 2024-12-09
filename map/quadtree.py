@@ -159,7 +159,7 @@ class FixedQuadTree:
             import pdb
             pdb.set_trace()
             seq_patch += [np.zeros(shape=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
-            seq_size.append([1]*(self.fixed_length-len(seq_patch)))
+            seq_size.append([1]*(self.fixed_length-len(seq_size)))
         elif len(seq_patch)>self.fixed_length:
             pass
             # random_drop
