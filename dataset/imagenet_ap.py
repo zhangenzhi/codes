@@ -24,12 +24,13 @@ class ImageNetDataset(Dataset):
         self.patchify = Patchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
-        import pdb
-        pdb.set_trace()
         # Glob all images and map class indices
         classes = sorted(os.listdir(root_dir))  # Get class directories
         self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(classes)}
 
+        import pdb
+        pdb.set_trace()
+        
         for cls_name in classes:
             cls_dir = os.path.join(root_dir, cls_name)
             for img_path in glob.glob(os.path.join(cls_dir, "*.jpeg")):  # Adjust extension if needed
