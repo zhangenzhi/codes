@@ -65,6 +65,9 @@ def parse_args():
     return args        
 if __name__ == "__main__":
 
+    import pdb
+    pdb.set_trace()
+    
     args = parse_args()
     datasets = ImageNetDataset(args.data_dir)
     
