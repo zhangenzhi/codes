@@ -120,9 +120,6 @@ class FixedQuadTree:
         self.nodes = [[root, root.contains(self.domain)]]
         while len(self.nodes)<self.fixed_length:
             bbox, value = max(self.nodes, key=lambda x:x[1])
-            # if sum(bbox.get_size())<4:
-            #     bbox, value = max(self.nodes, key=lambda x:sum(x[0].get_size()))
-                
             idx = self.nodes.index([bbox, value])
             if sum(bbox.get_size())<4:
                 break
@@ -160,6 +157,7 @@ class FixedQuadTree:
             # assert seq_patch[i].shape == (h2,w2,c2), "Wrong shape {} get, need {}".format(seq_patch[i].shape, (h2,w2,c2))
         if len(seq_patch)<self.fixed_length:
             seq_patch += [np.zeros(shape=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
+            seq_size.append(1)
         elif len(seq_patch)>self.fixed_length:
             pass
             # random_drop
