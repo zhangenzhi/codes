@@ -70,7 +70,7 @@ if __name__ == "__main__":
     args = parse_args()
     # Paths to the ImageNet directories
     train_dir = os.path.join(args.data_dir, "train")
-    val_dir = os.path.join(args.data_dir," val")
+    val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
     train_set = ImageNetDataset(train_dir)
