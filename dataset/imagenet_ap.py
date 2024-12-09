@@ -90,28 +90,28 @@ if __name__ == "__main__":
     # Paths to the ImageNet directories
     train_dir = os.path.join(args.data_dir, "train")
     
-    test_ap(train_dir)
+    # test_ap(train_dir)
     
     # val_dir = os.path.join(args.data_dir,"val")
 
-    # # Create datasets
-    # train_set = ImageNetDataset(train_dir)
-    # val_set = ImageNetDataset(val_dir)
+    # Create datasets
+    train_set = ImageNetDataset(train_dir)
+    val_set = ImageNetDataset(val_dir)
     
-    # train_size = len(train_set)
-    # val_size = len(val_set)
-    # print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    train_size = len(train_set)
+    val_size = len(val_set)
+    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
-    # train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
-    # val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
-    # test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
-    # # Example usage:
-    # # Iterate through the dataloaders
-    # import time
-    # start_time = time.time()
-    # for phase in ['train', 'val']:
-    #     for step, data in enumerate(train_loader):
-    #         if step%500==0:
-    #             print(step)
-    # print("Time cost for loading {}".format(time.time() - start_time))
+    # Example usage:
+    # Iterate through the dataloaders
+    import time
+    start_time = time.time()
+    for phase in ['train', 'val']:
+        for step, data in enumerate(train_loader):
+            if step%500==0:
+                print(step)
+    print("Time cost for loading {}".format(time.time() - start_time))
