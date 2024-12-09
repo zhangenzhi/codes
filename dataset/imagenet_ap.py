@@ -33,7 +33,7 @@ class ImageNetDataset(Dataset):
         
         for cls_name in classes:
             cls_dir = os.path.join(root_dir, cls_name)
-            for img_path in glob.glob(os.path.join(cls_dir, "*.jpeg")):  # Adjust extension if needed
+            for img_path in glob.glob(os.path.join(cls_dir, "*.JPEG")):  # Adjust extension if needed
                 self.image_paths.append(img_path)
                 self.labels.append(self.class_to_idx[cls_name])
 
