@@ -6,6 +6,7 @@ import os
 import glob
 import numpy as np
 from PIL import Image
+import cv2 as cv
 from torchvision import datasets, transforms
 from torch.utils.data.dataset import Subset
 from torch.utils.data import DataLoader
@@ -45,7 +46,7 @@ class ImageNetDataset(Dataset):
         # Open image
         image = Image.open(img_path).convert("RGB")
         image = np.array(image)
-        image = np.resize(image, dsize=[256,256])
+        image = cv.resize(image, dsize=[256,256])
         seq_img, seq_size = self.patchify(image)
         
         # Apply transformations
