@@ -64,11 +64,13 @@ def parse_args():
     args = parser.parse_args()
     return args        
 if __name__ == "__main__":
+    import pdb
+    pdb.set_trace()
     
     args = parse_args()
     # Paths to the ImageNet directories
-    train_dir = os.path.join(args.data_dir,"train")
-    val_dir = os.path.join(args.data_dir,"val")
+    train_dir = os.path.join(args.data_dir, "train")
+    val_dir = os.path.join(args.data_dir," val")
 
     # Create datasets
     train_set = ImageNetDataset(train_dir)
