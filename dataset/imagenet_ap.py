@@ -92,7 +92,7 @@ if __name__ == "__main__":
     
     # test_ap(train_dir)
     
-    # val_dir = os.path.join(args.data_dir,"val")
+    val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
     train_set = ImageNetDataset(train_dir)
