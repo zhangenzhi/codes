@@ -2,10 +2,13 @@ import torch
 from torch import nn
 import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
 import timm
 import time
+import os
 
 from dataset.imagenet import imagenet
+from dataset.imagenet_ap import ImageNetDataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -143,6 +146,22 @@ def vit_train(args):
 
     # Create DataLoader for training and validation
     dataloaders = imagenet(args=args)
+    dataloaders = {"train":None, "val":None}
+    
+    # Create DataLoader for training and validation
+    train_dir = os.path.join(args.data_dir, "train")
+    val_dir = os.path.join(args.data_dir,"val")
+    # Create datasets
+    train_set = ImageNetDataset(train_dir)
+    val_set = ImageNetDataset(val_dir)
+    
+    train_size = len(train_set)
+    val_size = len(val_set)
+    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    
+    dataloaders['train'] = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
+    dataloaders['val'] = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    # test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Create ViT model
     model = create_vit_model(args.pretrained)

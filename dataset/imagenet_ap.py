@@ -22,8 +22,13 @@ class ImageNetDataset(Dataset):
             transform (callable, optional): A function/transform to apply to the images.
         """
         self.root_dir = root_dir
-        self.transform = transform
         self.patchify = Patchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
+        self.transform =  transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
         # Glob all images and map class indices
@@ -53,7 +58,7 @@ class ImageNetDataset(Dataset):
         if self.transform:
             image = self.transform(image)
 
-        return seq_size, label
+        return image, label
     
 def test_ap(root_dir):
     patchify = Patchify()
