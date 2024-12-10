@@ -46,7 +46,7 @@ class ImageNetDataset(Dataset):
         # Open image
         image = Image.open(img_path).convert("RGB")
         image = np.array(image)
-        image = cv.resize(image, dsize=[256,256])
+        image = cv.resize(image, dsize=[512,512])
         seq_img, seq_size, _ = self.patchify(image)
         
         # Apply transformations
@@ -68,7 +68,7 @@ def test_ap(root_dir):
         # Open image
         image = Image.open(img_path).convert("RGB")
         image = np.array(image)
-        image = cv.resize(image, dsize=[256,256])
+        image = cv.resize(image, dsize=[512,512])
         seq_img, seq_size, _ = patchify(image)
         if len(seq_size) != 196:
             print(len(seq_size), img_path, idx)

@@ -129,7 +129,7 @@ def bert_train(args):
     
     
     # Create Bert model
-    seq_length = 512
+    seq_length = 256
     num_classes = 1000
     model = BERTClassifier(seq_length=seq_length, num_classes=num_classes)
     model = nn.DataParallel(model)

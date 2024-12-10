@@ -159,7 +159,7 @@ class FixedQuadTree:
             # import pdb
             # pdb.set_trace()
             seq_patch += [np.zeros(shape=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
-            seq_size += [1]*(self.fixed_length-len(seq_size))
+            seq_size += [0]*(self.fixed_length-len(seq_size))
         elif len(seq_patch)>self.fixed_length:
             pass
             # random_drop
@@ -173,7 +173,7 @@ class FixedQuadTree:
         seq = np.reshape(seq, (self.fixed_length, patch_size, patch_size, channel))
         seq = seq.astype(int)
         mask = np.zeros(shape=(H, W, channel))
-        print("de mask:", mask.shape)
+        print("demask:", mask.shape)
         
         # mask = np.expand_dims(mask, axis=-1)
         for idx,(bbox,value) in enumerate(self.nodes):
