@@ -31,6 +31,7 @@ class ImageNetDataset(Dataset):
         ])
         self.seq_transform= transforms.Compose([
             transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
