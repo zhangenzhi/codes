@@ -37,7 +37,7 @@ def main(args):
         imagenet_iter(args=args)
     elif args.task == "vit_imagenet":
         vit_train(args=args)
-    elif args.task == "vit_imagenet":
+    elif args.task == "vit_imagenet_ap":
         vit_ap_train(args=args)
     elif args.task == "vit_imagenet_ddp":
         vit_ddp(args=args)

@@ -4,9 +4,11 @@ import torch.utils.data as data  # For custom dataset (optional)
 import torchvision.transforms as transforms
 import timm
 import time
+import os
+from torch.utils.data import DataLoader
+import time
 
-from dataset.imagenet import imagenet
-
+from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def create_vit_model(pretrained, num_classes=1000):
@@ -142,15 +144,29 @@ def evaluate_model(model, val_loader, criterion):
 def vit_ap_train(args):
 
     # Create DataLoader for training and validation
-    dataloaders = imagenet(args=args)
+        # Create DataLoader for training and validation
+    train_dir = os.path.join(args.data_dir, "train")
+    val_dir = os.path.join(args.data_dir,"val")
+
+    # Create datasets
+    train_set = ImageNetDataset(train_dir)
+    val_set = ImageNetDataset(val_dir)
+    
+    train_size = len(train_set)
+    val_size = len(val_set)
+    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Create ViT model
     model = create_vit_model(args.pretrained)
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=3e-4)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
 
     # Train the model
-    train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
 
