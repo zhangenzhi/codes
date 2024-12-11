@@ -10,39 +10,10 @@ import os
 from dataset.imagenet import imagenet
 from dataset.imagenet_ap import ImageNetDataset
 
+from model.vit import create_vit_model
+from model.vit import VisionTransformer
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-def create_vit_model(pretrained, num_classes=1000):
-    """
-    Creates a ViT model for ImageNet classification.
-
-    Args:
-        pretrained (bool): If True, loads pre-trained weights. Defaults to False.
-        num_classes (int, optional): Number of output classes (defaults to 1000 for ImageNet). Defaults to 1000.
-
-    Returns:
-        nn.Module: The created ViT model.
-    """
-
-    if pretrained:
-        # Fine-tune a pre-trained model (freeze early layers if desired)
-        model = timm.create_model("vit_base_patch16_224", pretrained=True)
-        for param in model.parameters():
-            param.requires_grad = False  # Optionally freeze early layers
-
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-
-    else:
-        # Create a ViT model with randomly initialized weights
-        model = timm.create_model("vit_base_patch16_224", pretrained=False)
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-        
-    model = nn.DataParallel(model)
-    return model.to(device)
 
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
@@ -164,11 +135,14 @@ def vit_train(args):
     # test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Create ViT model
-    model = create_vit_model(args.pretrained)
+    # model = create_vit_model(args.pretrained)
+    model = VisionTransformer(img_size=224,patch_size=16,in_channels=3,num_classes=1000)
+    model = nn.DataParallel(model)
+    model = model.to(device)
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-3)
 
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs)

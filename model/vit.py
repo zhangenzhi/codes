@@ -3,26 +3,37 @@ from torch import nn
 import timm
 
 
-def create_vit_model(pretrained=True, model_name="vit_base_patch16_224", num_classes=1000):
+def create_vit_model(pretrained, num_classes=1000, device="cuda"):
     """
     Creates a ViT model for ImageNet classification.
 
     Args:
-        pretrained (bool, optional): If True, loads pre-trained weights. Defaults to True.
-        model_name (str, optional): Name of the pre-trained ViT model variant. Defaults to "vit_base_patch16_224".
+        pretrained (bool): If True, loads pre-trained weights. Defaults to False.
         num_classes (int, optional): Number of output classes (defaults to 1000 for ImageNet). Defaults to 1000.
 
     Returns:
         nn.Module: The created ViT model.
     """
 
-    model = timm.create_model(model_name, pretrained=pretrained)
+    if pretrained:
+        # Fine-tune a pre-trained model (freeze early layers if desired)
+        model = timm.create_model("vit_base_patch16_224", pretrained=True)
+        for param in model.parameters():
+            param.requires_grad = False  # Optionally freeze early layers
 
-    # Modify the final classification head
-    in_features = model.head.in_features
-    model.head = nn.Linear(in_features, num_classes)
+        # Modify the final classification head
+        in_features = model.head.in_features
+        model.head = nn.Linear(in_features, num_classes)
 
-    return model
+    else:
+        # Create a ViT model with randomly initialized weights
+        model = timm.create_model("vit_base_patch16_224", pretrained=False)
+        # Modify the final classification head
+        in_features = model.head.in_features
+        model.head = nn.Linear(in_features, num_classes)
+        
+    model = nn.DataParallel(model)
+    return model.to(device)
 
 import torch
 import torch.nn as nn
