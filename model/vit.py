@@ -3,7 +3,7 @@ from torch import nn
 import timm
 
 
-def create_vit_model(pretrained, num_classes=1000, device="cuda"):
+def create_vit_model(pretrained, num_classes=1000):
     """
     Creates a ViT model for ImageNet classification.
 
@@ -32,8 +32,7 @@ def create_vit_model(pretrained, num_classes=1000, device="cuda"):
         in_features = model.head.in_features
         model.head = nn.Linear(in_features, num_classes)
         
-    model = nn.DataParallel(model)
-    return model.to(device)
+    return model
 
 import torch
 import torch.nn as nn

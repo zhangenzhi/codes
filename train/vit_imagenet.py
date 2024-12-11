@@ -135,8 +135,8 @@ def vit_train(args):
     # test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Create ViT model
-    # model = create_vit_model(args.pretrained)
-    model = VisionTransformer(img_size=224,patch_size=16,in_channels=3,num_classes=1000)
+    model = create_vit_model(args.pretrained)
+    # model = VisionTransformer(img_size=224, patch_size=16, in_channels=3, num_classes=1000)
     model = nn.DataParallel(model)
     model = model.to(device)
     
