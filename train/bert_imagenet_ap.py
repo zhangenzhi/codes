@@ -99,7 +99,6 @@ def evaluate_model(model, val_loader, criterion):
             with torch.cuda.amp.autocast():
                 outputs = model(images,atten)
                 loss = criterion(outputs, labels)
-                
             num_iter += 1
             val_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
@@ -127,7 +126,6 @@ def bert_train(args):
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
-    
     # Create Bert model
     seq_length = 256
     num_classes = 1000
@@ -140,7 +138,7 @@ def bert_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-5)
+    optimizer = torch.optim.Adam(model.parameters(),lr=1e-4)
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, args.output)
