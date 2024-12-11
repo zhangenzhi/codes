@@ -139,7 +139,7 @@ def evaluate_model(model, val_loader, criterion):
     accuracy = 100 * correct / total
     return accuracy, val_loss
 
-def vit_train(args):
+def vit_ap_train(args):
 
     # Create DataLoader for training and validation
     dataloaders = imagenet(args=args)
