@@ -74,6 +74,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         correct = 0
         for i, (images, labels) in enumerate(train_loader):
             images = images.to(device, non_blocking=True)
+            images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
             
@@ -127,6 +128,7 @@ def evaluate_model(model, val_loader, criterion):
     with torch.no_grad():
         for images, labels in val_loader:
             images = images.to(device, non_blocking=True)
+            images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
             with torch.cuda.amp.autocast():
                 outputs = model(images)

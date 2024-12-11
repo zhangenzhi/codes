@@ -29,6 +29,9 @@ class ImageNetDataset(Dataset):
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
+        self.seq_transform= transforms.Compose([
+            transforms.ToTensor(),
+        ])
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
         # Glob all images and map class indices
@@ -53,11 +56,11 @@ class ImageNetDataset(Dataset):
         np_image = np.array(image)
         np_image = cv.resize(np_image, dsize=[512,512])
         seq_img, seq_size, _ = self.patchify(np_image)
-        seq_img = torch.reshape(torch.Tensor(seq_img), shape=(3,224,224))
+        seq_img = self.seq_transform(seq_img)
         
-        # Apply transformations
-        if self.transform:
-            image = self.transform(image)
+        # # Apply transformations
+        # if self.transform:
+        #     image = self.transform(image)
 
         return seq_img, label
     
