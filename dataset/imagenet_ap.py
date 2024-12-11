@@ -31,7 +31,7 @@ class ImageNetDataset(Dataset):
         ])
         self.seq_transform= transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
         self.image_paths = []  # List to store image paths
         self.labels = []       # List to store corresponding labels
@@ -54,16 +54,16 @@ class ImageNetDataset(Dataset):
 
         # Open image
         image = Image.open(img_path).convert("RGB")
-        np_image = np.array(image)
-        np_image = cv.resize(np_image, dsize=[512,512])
-        seq_img, seq_size, _ = self.patchify(np_image)
-        seq_img = self.seq_transform(seq_img)
+        # np_image = np.array(image)
+        # np_image = cv.resize(np_image, dsize=[512,512])
+        # seq_img, seq_size, _ = self.patchify(np_image)
+        # seq_img = self.seq_transform(seq_img)
         
-        # # Apply transformations
-        # if self.transform:
-        #     image = self.transform(image)
+        # Apply transformations
+        if self.transform:
+            image = self.transform(image)
 
-        return seq_img, label
+        return image, label
     
 def test_ap(root_dir):
     patchify = Patchify()
