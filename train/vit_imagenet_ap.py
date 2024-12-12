@@ -103,7 +103,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 val_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                val_correct += (predicted == labels).sum().item()
         val_loss /= num_iter
         val_acc = 100 * val_correct / total
         logging.info("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
