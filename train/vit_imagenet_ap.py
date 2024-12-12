@@ -8,6 +8,18 @@ import os
 from torch.utils.data import DataLoader
 import time
 
+import os
+import logging
+
+# Configure logging
+def log(args):
+    os.makedirs(args.savefile, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(args.savefile, "out.log"),
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
 from model.vit import VisionTransformer, create_vit_model
 from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -61,7 +73,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             if i % 100 == 99:  # Print every 100 mini-batches
                 _, predicted = torch.max(outputs.data, 1)
                 correct += (predicted == labels).sum().item()
-                print('[%d, %5d] train loss: %.3f train acc: %.3f' %
+                logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
                       (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
                 running_loss = 0.0
                 correct = 0
@@ -89,16 +101,16 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 correct += (predicted == labels).sum().item()
         val_loss /= num_iter
         val_acc = 100 * val_correct / total
-        print("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
+        logging.info("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
 
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             torch.save(model.state_dict(), "best_vit_model.pth")
 
-        print('Finished Training Step %d' % (epoch + 1))
+        logging.info('Finished Training Step %d' % (epoch + 1))
 
-    print('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_acc))
+    logging.info('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_acc))
 
 def vit_ap_train(args):
     
@@ -112,7 +124,7 @@ def vit_ap_train(args):
     
     train_size = len(train_set)
     val_size = len(val_set)
-    print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
     train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, num_workers=32, shuffle=False)
