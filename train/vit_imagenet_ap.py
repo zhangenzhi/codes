@@ -88,10 +88,15 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             for images, labels in val_loader:
                 images = images.to(device, non_blocking=True)
                 images = torch.reshape(images,shape=(-1,3,224, 224))
+                print(images.dtype)
                 labels = labels.to(device, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
-                    outputs = model(images)
+                    try:
+                        outputs = model(images)
+                    except:
+                        import pdb
+                        pdb.set_trace()
                     loss = criterion(outputs, labels)
                     
                 num_iter += 1
