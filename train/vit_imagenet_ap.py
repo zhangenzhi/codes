@@ -171,7 +171,7 @@ def vit_ap_train(args):
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(),lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
