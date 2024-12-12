@@ -57,7 +57,7 @@ class ImageNetDataset(Dataset):
         # Open image
         image = Image.open(img_path).convert("RGB")
         np_image = np.array(image)
-        np_image = cv.resize(np_image, dsize=[512,512])
+        np_image = cv.resize(np_image, dsize=[256,256])
         seq_img, seq_size, _ = self.patchify(np_image)
         seq_img = self.seq_transform(seq_img)
         
