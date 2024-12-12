@@ -160,7 +160,7 @@ def vit_ap_train(args):
     print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
     train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, num_workers=32, shuffle=False)
     test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
     # Create ViT model
