@@ -15,7 +15,7 @@ import logging
 def log(args):
     os.makedirs(args.savefile, exist_ok=True)
     logging.basicConfig(
-        filename=os.path.join(args.savefile, "out.log"),
+        filename=os.path.join(args.output, "out.log"),
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
