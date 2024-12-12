@@ -13,7 +13,7 @@ import logging
 
 # Configure logging
 def log(args):
-    os.makedirs(args.savefile, exist_ok=True)
+    os.makedirs(args.output, exist_ok=True)
     logging.basicConfig(
         filename=os.path.join(args.output, "out.log"),
         level=logging.INFO,
