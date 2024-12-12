@@ -113,6 +113,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     logging.info('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_acc))
 
 def vit_ap_train(args):
+    log(args=args)
     
     # Create DataLoader for training and validation
     train_dir = os.path.join(args.data_dir, "train")
