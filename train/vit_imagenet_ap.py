@@ -125,8 +125,8 @@ def vit_ap_train(args):
     val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
-    train_set = ImageNetDataset(train_dir)
-    val_set = ImageNetDataset(val_dir)
+    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16)
+    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16)
     
     train_size = len(train_set)
     val_size = len(val_set)
