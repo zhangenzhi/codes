@@ -81,7 +81,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         # Validate after each epoch
         model.eval()
         val_correct = 0
-        total = 0
+        val_total = 0
         val_loss = 0.0
         num_iter = 0
         with torch.no_grad():
@@ -102,10 +102,10 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 num_iter += 1
                 val_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
+                val_total += labels.size(0)
                 val_correct += (predicted == labels).sum().item()
         val_loss /= num_iter
-        val_acc = 100 * val_correct / total
+        val_acc = 100 * val_correct / val_total
         logging.info("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
 
         # Save the best model based on validation accuracy
