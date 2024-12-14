@@ -52,9 +52,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
         correct = 0
-        for i, (images, labels) in enumerate(train_loader):
+        for i, (gd, images, labels) in enumerate(train_loader):
+            import pdb
+            pdb.set_trace()
             images = images.to(device, non_blocking=True)
-            images = torch.reshape(images,shape=(-1,3,224, 224))
+            images = images.view(-1, 196, 16*16*3) 
+            # images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
             
@@ -85,9 +88,10 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         val_loss = 0.0
         num_iter = 0
         with torch.no_grad():
-            for images, labels in val_loader:
+            for gd, images, labels in val_loader:
                 images = images.to(device, non_blocking=True)
-                images = torch.reshape(images,shape=(-1,3,224, 224))
+                images = images.view(-1, 196, 16*16*3) 
+                # images = torch.reshape(images,shape=(-1,3,224, 224))
                 print(images.dtype)
                 labels = labels.to(device, non_blocking=True)
                 

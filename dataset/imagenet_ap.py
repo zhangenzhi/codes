@@ -28,6 +28,7 @@ class ImageNetDataset(Dataset):
             # transforms.RandomHorizontalFlip(),
             transforms.Resize([224,224]),
             transforms.ToTensor(),
+            transforms.ConvertImageDtype(torch.float16),
             # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
         self.seq_transform= transforms.Compose([
@@ -61,11 +62,11 @@ class ImageNetDataset(Dataset):
         seq_img, seq_size, _ = self.patchify(np_image)
         seq_img = self.seq_transform(seq_img)
         
-        # # Apply transformations
-        # if self.transform:
-        #     image = self.transform(image)
+        # Apply transformations
+        if self.transform:
+            image = self.transform(image)
 
-        return seq_img, label
+        return image, seq_img, label
     
 def test_ap(root_dir):
     patchify = Patchify()
@@ -80,7 +81,7 @@ def test_ap(root_dir):
         # Open image
         image = Image.open(img_path).convert("RGB")
         image = np.array(image)
-        image = cv.resize(image, dsize=[512,512])
+        image = cv.resize(image, dsize=[256,256])
         seq_img, seq_size, _ = patchify(image)
         if len(seq_size) != 196:
             print(len(seq_size), img_path, idx)
@@ -88,8 +89,8 @@ def test_ap(root_dir):
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
-    # parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')
-    parser.add_argument('--data_dir', type=str, default='/Volumes/Extreme/dataset/imagenet', help='Path to the ImageNet dataset directory')
+    parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')
+    # parser.add_argument('--data_dir', type=str, default='/Volumes/Extreme/dataset/imagenet', help='Path to the ImageNet dataset directory')
     parser.add_argument('--num_epochs', type=int, default=3, help='Epochs for iteration')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for DataLoader')
     parser.add_argument('--num_workers', type=int, default=10, help='Number of workers for DataLoader')
@@ -97,7 +98,9 @@ def parse_args():
     args = parser.parse_args()
     return args        
 if __name__ == "__main__":
-    
+    import matplotlib
+    import matplotlib.pyplot as plt
+    matplotlib.use("TkAgg")
     args = parse_args()
     # Paths to the ImageNet directories
     train_dir = os.path.join(args.data_dir, "train")
@@ -107,14 +110,14 @@ if __name__ == "__main__":
     val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
-    train_set = ImageNetDataset(train_dir)
-    val_set = ImageNetDataset(val_dir)
+    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16)
+    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16)
     
     train_size = len(train_set)
     val_size = len(val_set)
     print("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
-    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=32, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
     
@@ -124,6 +127,31 @@ if __name__ == "__main__":
     start_time = time.time()
     for phase in ['train', 'val']:
         for step, data in enumerate(train_loader):
+            gd, image, label = data
+            image = torch.reshape(image,shape=(-1,3,224, 224))
+            image = image[0]
+            image = image.permute(1, 2, 0).numpy()
+            image = np.float32(image)
+            gd = gd[0]
+            gd = gd.permute(1, 2, 0).numpy()
+            gd = np.float32(gd)
+            # import pdb
+            # pdb.set_trace()
+
+            # Plot the image
+            fig, axs = plt.subplots(1, 2, figsize=(10, 5))  # 1 row, 2 columns
+            axs[0].imshow(gd)
+            axs[0].axis('off')  # Turn off axes for better visualization
+            axs[0].set_title(f"gd")
+            
+            axs[1].imshow(image)
+            axs[1].axis('off')  # Turn off axes for better visualization
+            axs[1].set_title(f"seq img")
+    
+            plt.tight_layout()
+            plt.show()
+            plt.close()
+            
             if step%500==0:
                 print("Step:{} Time Step:{}, Time Image:{}".format(step, 
                                                                 (time.time() - start_time)/(step+1), 

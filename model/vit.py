@@ -35,20 +35,49 @@ def create_vit_model(pretrained, num_classes=1000):
     return model
 
 import torch
+import numpy as np
 import torch.nn as nn
 from einops import rearrange
 
+def sinusoidal_encoding(coordinates, embedding_dim):
+    freq = 1 / np.power(10000, (2 * (np.arange(embedding_dim) // 2)) / embedding_dim)
+    encodings = []
+    for x, y in coordinates:
+        x_enc = np.sin(x * freq[::2])  # Sine for x-coordinates
+        y_enc = np.cos(y * freq[1::2])  # Cosine for y-coordinates
+        encodings.append(np.concatenate([x_enc, y_enc]))
+    return np.array(encodings)
+
+# Learnable positional embedding
+class AdaptivePositionalEmbedding(nn.Module):
+    def __init__(self, embedding_dim=768, grid_size=14):
+        super().__init__()
+        self.embedding_table = nn.Embedding(grid_size * grid_size, embedding_dim)
+
+    def forward(self, coordinates):
+        # Convert (x, y) coordinates into flat indices
+        grid_size = int(len(coordinates) ** 0.5)
+        indices = [x * grid_size + y for x, y in coordinates]
+        indices = torch.tensor(indices, dtype=torch.long)
+        return self.embedding_table(indices)
+    
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim):
         super().__init__()
         self.patch_size = patch_size
         self.embed_dim = embed_dim
         
-        self.projection = nn.Conv2d(
-            in_channels,
+        # self.projection = nn.Conv2d(
+        #     in_channels,
+        #     embed_dim,
+        #     kernel_size=patch_size,
+        #     stride=patch_size
+        # )
+        self.projection = nn.Linear(
+            patch_size * patch_size * in_channels,
             embed_dim,
-            kernel_size=patch_size,
-            stride=patch_size
+            # kernel_size=patch_size,
+            # stride=patch_size
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(
@@ -59,7 +88,7 @@ class PatchEmbedding(nn.Module):
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
-        x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
+        # x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
         
         # Add [CLS] token
         cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
