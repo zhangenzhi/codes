@@ -22,7 +22,7 @@ class Patchify(torch.nn.Module):
         self.smooth_factor = 0
         if self.smooth_factor ==0 :
             edges = np.random.uniform(low=0,high=1,size=(img.shape[0],img.shape[1]))
-            edges = np.random.uniform(low=0,high=1, size=(256,256))
+            # edges = np.random.uniform(low=0,high=1, size=(256,256))
         else:
             grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
             edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
