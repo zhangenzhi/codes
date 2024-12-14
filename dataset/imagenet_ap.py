@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 from map.transform import Patchify
 class ImageNetDataset(Dataset):
-    def __init__(self, root_dir, sths=[1,3,5,7], cannys=[50, 100], fixed_length=196, patch_size=16, transform=None):
+    def __init__(self, root_dir, sths=[0,1,3,5,7], cannys=[50, 100], fixed_length=196, patch_size=16, transform=None):
         """
         Custom dataset to load ImageNet data using glob.
         Args:

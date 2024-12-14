@@ -5,7 +5,7 @@ import random
 from map.quadtree import FixedQuadTree
 
 class Patchify(torch.nn.Module):
-    def __init__(self, sths=[0, 1,3,5], fixed_length=196, cannys=[50, 100], patch_size=16) -> None:
+    def __init__(self, sths=[0,1,3,5], fixed_length=196, cannys=[50, 100], patch_size=16) -> None:
         super().__init__()
         
         self.sths = sths
@@ -16,10 +16,10 @@ class Patchify(torch.nn.Module):
     def forward(self, img):  # we assume inputs are always structured like this
         # Do some transformations. Here, we're just passing though the input
         
-        # self.smooth_factor = random.choice(self.sths)
-        # c = random.choice(self.cannys)
-        # self.canny = [c, c+50]
-        self.smooth_factor = 0
+        self.smooth_factor = random.choice(self.sths)
+        c = random.choice(self.cannys)
+        self.canny = [c, c+50]
+        # self.smooth_factor = 0
         if self.smooth_factor ==0 :
             edges = np.random.uniform(low=0,high=1,size=(img.shape[0],img.shape[1]))
             # edges = np.random.uniform(low=0,high=1, size=(256,256))
