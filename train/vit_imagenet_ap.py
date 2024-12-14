@@ -53,8 +53,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         running_loss = 0.0
         correct = 0
         for i, (gd, images, labels) in enumerate(train_loader):
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             images = images.to(device, non_blocking=True)
             images = images.view(-1, 196, 16*16*3) 
             # images = torch.reshape(images,shape=(-1,3,224, 224))
