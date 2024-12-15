@@ -26,8 +26,7 @@ class Patchify(torch.nn.Module):
         else:
             grey_img = cv.GaussianBlur(img, (self.smooth_factor, self.smooth_factor), 0)
             edges = cv.Canny(grey_img, self.canny[0], self.canny[1])
-        # import pdb
-        # pdb.set_trace()
+
         qdt = FixedQuadTree(domain=edges, fixed_length=self.fixed_length)
         seq_img, seq_size, seq_pos = qdt.serialize(img, size=(self.patch_size,self.patch_size,3))
         seq_size = np.asarray(seq_size)
