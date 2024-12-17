@@ -145,9 +145,11 @@ class FixedQuadTree:
         
         seq_patch = []
         seq_size = []
+        seq_pos = []
         for bbox,value in self.nodes:
             seq_patch.append(bbox.get_area(img))
             seq_size.append(bbox.get_size()[0])
+            seq_pos.append(bbox.get_center())
             
         h2,w2,c2 = size
         for i in range(len(seq_patch)):
@@ -165,7 +167,7 @@ class FixedQuadTree:
             # random_drop
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         assert len(seq_size)==self.fixed_length, "Not equal fixed legnth."
-        return seq_patch, seq_size
+        return seq_patch, seq_size, seq_pos
     
     def deserialize(self, seq, patch_size, channel):
 

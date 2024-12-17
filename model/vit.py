@@ -62,7 +62,7 @@ class AdaptivePositionalEmbedding(nn.Module):
         return self.embedding_table(indices)
     
 class PatchEmbedding(nn.Module):
-    def __init__(self, img_size, patch_size, in_channels, embed_dim):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
         super().__init__()
         self.patch_size = patch_size
         self.embed_dim = embed_dim
@@ -73,6 +73,11 @@ class PatchEmbedding(nn.Module):
         #     kernel_size=patch_size,
         #     stride=patch_size
         # )
+        if seq_length==None:
+            seq_length = (img_size // patch_size) ** 2
+        else:
+            seq_length = seq_length
+        
         self.projection = nn.Linear(
             patch_size * patch_size * in_channels,
             embed_dim,
@@ -81,7 +86,7 @@ class PatchEmbedding(nn.Module):
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(
-            torch.randn(1, (img_size // patch_size) ** 2 + 1, embed_dim)
+            torch.randn(1, seq_length + 1, embed_dim)
         )
         
     def forward(self, x):
@@ -162,9 +167,10 @@ class VisionTransformer(nn.Module):
         num_heads=12,
         mlp_dim=3072,
         dropout=0.1,
+        seq_length=None,
     ):
         super().__init__()
-        self.patch_embed = PatchEmbedding(img_size, patch_size, in_channels, embed_dim)
+        self.patch_embed = PatchEmbedding(img_size, patch_size, in_channels, embed_dim, seq_length=seq_length)
         self.blocks = nn.Sequential(
             *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
         )
