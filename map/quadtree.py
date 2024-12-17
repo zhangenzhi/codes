@@ -201,6 +201,43 @@ class FixedQuadTree:
             xs += [x]
             ys += [y]
         ax.plot(xs, ys, color='red', linewidth=1)
+        
+class DensityQuadtree(FixedQuadTree):
+    def __init__(self, domain, fixed_length=128, build_from_info=False, meta_info=None):
+        super().__init__(domain, fixed_length, build_from_info, meta_info)
+    
+    def _build_tree(self):
+        h,w = self.domain.shape
+        assert h>0 and w >0, "Wrong img size."
+        root = Rect(0,w,0,h)
+        # self.nodes = [[root, root.contains(self.domain)]]
+        r = root.contains(self.domain)/h/w
+        m = root.contains(self.domain)
+        self.nodes = [[root, m*r*r]]
+        while len(self.nodes)<self.fixed_length:
+            bbox, value = max(self.nodes, key=lambda x:x[1])
+            idx = self.nodes.index([bbox, value])
+            if sum(bbox.get_size())<4:
+                break
+
+            x1,x2,y1,y2 = bbox.get_coord()
+            lt = Rect(x1, int((x1+x2)/2), int((y1+y2)/2), y2)
+            m1 = lt.contains(self.domain)
+            r1 = lt.contains(self.domain)/lt.get_size()/lt.get_size()
+            v1 = m1*r1*r1
+            
+            rt = Rect(int((x1+x2)/2), x2, int((y1+y2)/2), y2)
+            v2 = rt.contains(self.domain)
+            
+            lb = Rect(x1, int((x1+x2)/2), y1, int((y1+y2)/2))
+            v3 = lb.contains(self.domain)
+            
+            rb = Rect(int((x1+x2)/2), x2, y1, int((y1+y2)/2))
+            v4 = rb.contains(self.domain)
+            
+            self.nodes = self.nodes[:idx] + [[lt,v1], [rt,v2], [lb,v3], [rb,v4]] +  self.nodes[idx+1:]
+
+            # print([v for _,v in self.nodes])
 
         
     
