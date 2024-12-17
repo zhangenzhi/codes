@@ -56,7 +56,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # import pdb
             # pdb.set_trace()
             images = images.to(device, non_blocking=True)
-            images = images.view(-1, 256, 16*16*3) 
+            images = images.view(-1, 196, 16*16*3) 
             # images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
@@ -90,7 +90,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         with torch.no_grad():
             for gd, images, labels in val_loader:
                 images = images.to(device, non_blocking=True)
-                images = images.view(-1, 256, 16*16*3) 
+                images = images.view(-1, 196, 16*16*3) 
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
                 print(images.dtype)
                 labels = labels.to(device, non_blocking=True)
@@ -129,8 +129,8 @@ def vit_ap_train(args):
     val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
-    train_set = ImageNetDataset(train_dir, fixed_length=256, patch_size=16, sths=[9])
-    val_set = ImageNetDataset(val_dir, fixed_length=256, patch_size=16, sths=[9])
+    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16, sths=[9])
+    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16, sths=[9])
     
     train_size = len(train_set)
     val_size = len(val_set)
@@ -142,7 +142,7 @@ def vit_ap_train(args):
     
     # Create ViT model
     # model = create_vit_model(args.pretrained)
-    model = VisionTransformer(img_size=256, patch_size=16, in_channels=3, num_classes=1000, seq_length=256)
+    model = VisionTransformer(img_size=224, patch_size=16, in_channels=3, num_classes=1000, seq_length=196)
     model = nn.DataParallel(model)
     model = model.to(device)
     
