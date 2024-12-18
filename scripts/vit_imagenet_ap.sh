@@ -23,5 +23,5 @@ python main.py \
     --task vit_imagenet_ap \
     --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet \
     --batch_size 512 \
-    --num_workers 32 \
+    --num_workers 64 \
     --num_epochs 100
