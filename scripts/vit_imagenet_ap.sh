@@ -21,7 +21,7 @@ module load rocm/5.7.0
 
 python main.py \
     --task vit_imagenet_ap \
-    --data_dir ../dataset/imagenet2012 \
+    --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet2012 \
     --batch_size 2048 \
     --num_workers 32 \
     --num_epochs 100
