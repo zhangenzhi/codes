@@ -16,12 +16,12 @@ export HOME="/tmp/srun"
 # conda activate /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/envs/gvit
 
 module load PrgEnv-gnu
-module load gcc/12.2.0
+module load gcc-native/12.3
 module load rocm/5.7.0
 
 python main.py \
     --task vit_imagenet_ap \
-    --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet2012 \
-    --batch_size 2048 \
+    --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet \
+    --batch_size 512 \
     --num_workers 32 \
     --num_epochs 100
