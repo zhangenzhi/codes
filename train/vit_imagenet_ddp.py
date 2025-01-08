@@ -73,15 +73,15 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         logging.info("Epoch %d/%d", epoch + 1, num_epochs)
         running_loss = 0.0
         for i, (images, labels) in enumerate(train_loader):
-            images = images.to(device_id)
-            labels = labels.to(device_id)
+            images = images.to(device_id, non_blocking=True)
+            labels = labels.to(device_id, non_blocking=True)
+            optimizer.zero_grad()
 
             # Forward pass, calculate loss
             outputs = model(images)
             loss = criterion(outputs, labels)
 
             # Backward pass and optimize
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -92,6 +92,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 running_loss = 0.0
 
         # Validate after each epoch
+        model.eval()
         val_acc = evaluate_model(model, val_loader, device_id)
         logging.info("Epoch: %d, Validation Accuracy: %.4f", epoch + 1, val_acc)
 
@@ -116,13 +117,12 @@ def evaluate_model(model, val_loader, device_id):
     Returns:
         float: The accuracy of the model on the validation set.
     """
-    model.eval()
     correct = 0
     total = 0
     with torch.no_grad():
         for images, labels in val_loader:
-            images = images.to(device_id)
-            labels = labels.to(device_id)
+            images = images.to(device_id, non_blocking=True)
+            labels = labels.to(device_id, non_blocking=True)
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -163,7 +163,7 @@ def vit_train(args):
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Train the model
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)

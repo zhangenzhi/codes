@@ -19,9 +19,9 @@
 # module load gcc/12.2.0
 # module load rocm/5.7.0
 
-python main.py \
+python ./dataset/imagenet_ap.py \
     --task vit_imagenet \
     --data_dir ../dataset/imagenet2012 \
-    --batch_size 512 \
+    --batch_size 1024 \
     --num_workers 32 \
-    --num_epochs 100
+    --num_epochs 10

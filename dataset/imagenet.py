@@ -3,17 +3,6 @@ import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-# Define a custom InMemoryDataset class
-# class InMemoryDataset(torch.utils.data.Dataset):
-#     def __init__(self, data):
-#         self.data = data
-    
-#     def __len__(self):
-#         return len(self.data)
-    
-#     def __getitem__(self, idx):
-#         return self.data[idx]
-    
 def imagenet(args):
 
     # Define data transformations
@@ -42,8 +31,9 @@ def imagenet(args):
 
     # Create data loaders
     shuffle = True
+    pin_memory  = True
     dataloaders = {x: DataLoader(image_datasets[x], batch_size=args.batch_size, shuffle=shuffle, 
-                                 num_workers=args.num_workers,pin_memory=False)
+                                 num_workers=args.num_workers,pin_memory=pin_memory)
                    for x in ['train', 'val']}
     return dataloaders
 
@@ -132,9 +122,22 @@ def imagenet_iter(args):
                 if step%1000==0:
                     print(step)
         print("Time cost for loading {}".format(time.time() - start_time))
-        
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
+    parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
+    # parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')
+    parser.add_argument('--data_dir', type=str, default='/Volumes/Extreme/dataset/imagenet', help='Path to the ImageNet dataset directory')
+    parser.add_argument('--num_epochs', type=int, default=3, help='Epochs for iteration')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for DataLoader')
+    parser.add_argument('--num_workers', type=int, default=10, help='Number of workers for DataLoader')
+    
+    args = parser.parse_args()
+    return args    
+
 if __name__ == "__main__":
-    dataloaders = imagenet()
+    args = parse_args()
+    dataloaders = imagenet(args)
     # Example usage:
     # Iterate through the dataloaders
     import time
