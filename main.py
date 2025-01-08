@@ -5,7 +5,7 @@ from dataset.imagenet import imagenet_iter
 from dataset.btcv import btcv_iter
 
 from train.vit_imagenet_ap import vit_ap_train
-from train.vit_imagenet import vit_train
+from utiliz.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.bert_imagenet_ap import bert_train
 from train.unet3d_btcv import unet3d_btcv
