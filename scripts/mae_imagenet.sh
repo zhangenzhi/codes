@@ -15,7 +15,7 @@ module load rocm/6.2.0
 
 python main.py \
     --task mae_imagenet \
-    --data_dir ../dataset/imagenet2012 \
+    --data_dir ../dataset/imagenet \
     --batch_size 512 \
     --num_workers 32 \
     --num_epochs 100
