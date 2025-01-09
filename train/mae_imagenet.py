@@ -8,6 +8,9 @@ import os
 from torch.utils.data import DataLoader
 import time
 
+import sys
+sys.path.append("./")
+
 import os
 import logging
 
