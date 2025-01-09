@@ -72,7 +72,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # scaler.update()
 
             # Print training progress (optional)
-            running_loss += loss.item()
+            running_loss += loss.mean().item()
             if i % 100 == 99:  # Print every 100 mini-batches
                 logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
                       (epoch + 1, i + 1, running_loss / 100,  100 * 0.0 / labels.size(0)))
@@ -90,7 +90,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 loss, pred, mask = model(images)
     
                 num_iter += 1
-                val_loss += loss.item()
+                val_loss += loss.mean().item()
      
                 val_total += labels.size(0)
         val_loss /= num_iter
