@@ -61,13 +61,12 @@ def train_model(model, train_loader, val_loader, criterion, dice_metric, optimiz
             images = images.to(device)
             labels = labels.to(device)
 
-            
+            # Backward pass and optimize
+            optimizer.zero_grad()
             # Forward pass, calculate loss
             outputs = model(images)
             loss = criterion(outputs, labels)
 
-            # Backward pass and optimize
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 

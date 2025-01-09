@@ -62,7 +62,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
             loss, pred, mask = model(images)
-            loss.backward()
+            print(loss)
+            loss.sum().backward()
             optimizer.step()
 
             # Backward pass and optimize
@@ -86,13 +87,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 images = images.to(device, non_blocking=True)
                 labels = labels.to(device, non_blocking=True)
                 
-                with torch.cuda.amp.autocast():
-                    try:
-                        loss, pred, mask = model(images)
-                    except:
-                        import pdb
-                        pdb.set_trace()
-                    
+                loss, pred, mask = model(images)
+    
                 num_iter += 1
                 val_loss += loss.item()
      
