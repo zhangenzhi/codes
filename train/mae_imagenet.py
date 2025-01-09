@@ -54,7 +54,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         start_time = time.time()
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
-        for i, (gd, images, labels) in enumerate(train_loader):
+        for i, (images, labels) in enumerate(train_loader):
             images = images.to(device, non_blocking=True)
             labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
@@ -80,7 +80,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         val_loss = 0.0
         num_iter = 0
         with torch.no_grad():
-            for gd, images, labels in val_loader:
+            for images, labels in val_loader:
                 images = images.to(device, non_blocking=True)
                 labels = labels.to(device, non_blocking=True)
                 
