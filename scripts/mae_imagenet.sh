@@ -14,7 +14,7 @@ module load gcc-native/12.3
 module load rocm/6.2.0
 
 python main.py \
-    --task vit_imagenet \
+    --task mae_imagenet \
     --data_dir ../dataset/imagenet2012 \
     --batch_size 512 \
     --num_workers 32 \
