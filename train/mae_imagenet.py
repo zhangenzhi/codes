@@ -1,0 +1,134 @@
+import torch
+from torch import nn
+import torch.utils.data as data  # For custom dataset (optional)
+import torchvision.transforms as transforms
+import timm
+import time
+import os
+from torch.utils.data import DataLoader
+import time
+
+import os
+import logging
+
+# Configure logging
+def log(args):
+    os.makedirs(args.output, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(args.output, "out.log"),
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+from model.mae import mae_vit_base_patch16
+from dataset.imagenet import imagenet
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
+    """
+    Trains the ViT model on the ImageNet dataset with validation.
+
+    Args:
+        model (nn.Module): The ViT model to train.
+        train_loader (DataLoader): The DataLoader for the training data.
+        val_loader (DataLoader): The DataLoader for the validation data.
+        criterion (nn.Module): The loss function (e.g., CrossEntropyLoss).
+        optimizer (Optimizer): The optimizer (e.g., Adam).
+        num_epochs (int): The number of epochs to train.
+
+    Returns:
+        None
+    """
+    # Enable mixed precision
+    scaler = torch.cuda.amp.GradScaler()
+
+    model.train()  # Set model to training mode
+    best_val_loss = 0.0
+    print("Training the ViT model for {} epochs...".format(num_epochs))
+
+    for epoch in range(num_epochs):
+        start_time = time.time()
+        print("Epoch {}/{}".format(epoch + 1, num_epochs))
+        running_loss = 0.0
+        for i, (gd, images, labels) in enumerate(train_loader):
+            images = images.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
+            optimizer.zero_grad()   
+            
+            # Forward pass, calculate loss
+            with torch.cuda.amp.autocast():
+                loss, pred, mask = model(images)
+
+            # Backward pass and optimize
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
+            # Print training progress (optional)
+            running_loss += loss.item()
+            if i % 100 == 99:  # Print every 100 mini-batches
+                logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 100,  100 * 0.0 / labels.size(0)))
+                running_loss = 0.0
+
+        # Validate after each epoch
+        val_total = 0
+        val_loss = 0.0
+        num_iter = 0
+        with torch.no_grad():
+            for gd, images, labels in val_loader:
+                images = images.to(device, non_blocking=True)
+                labels = labels.to(device, non_blocking=True)
+                
+                with torch.cuda.amp.autocast():
+                    try:
+                        loss, pred, mask = model(images)
+                    except:
+                        import pdb
+                        pdb.set_trace()
+                    
+                num_iter += 1
+                val_loss += loss.item()
+     
+                val_total += labels.size(0)
+        val_loss /= num_iter
+        logging.info("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(0.0, val_loss, time.time()-start_time))
+
+        # Save the best model based on validation accuracy
+        if val_loss > best_val_loss:
+            val_loss = val_loss
+            torch.save(model.state_dict(), "best_vit_model.pth")
+
+        logging.info('Finished Training Step %d' % (epoch + 1))
+
+    logging.info('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_loss))
+
+def mae_train(args):
+    log(args=args)
+    
+    # # Create DataLoader for training and validation
+    # train_dir = os.path.join(args.data_dir, "train")
+    # val_dir = os.path.join(args.data_dir,"val")
+
+    # Create datasets
+    dataloaders = imagenet(args=args)
+    train_loader = dataloaders["train"]
+    val_loader = dataloaders["val"]
+    
+    train_size = len(train_loader)
+    val_size = len(val_loader)
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    
+    # Create ViT model
+    model = mae_vit_base_patch16()
+    model = nn.DataParallel(model)
+    model = model.to(device)
+    
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+
+    # Train the model
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
+

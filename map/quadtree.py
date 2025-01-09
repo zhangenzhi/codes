@@ -23,8 +23,6 @@ class Rect:
         return img[self.y1:self.y2, self.x1:self.x2, :]
     
     def set_area(self, mask, patch):
-        # import pdb
-        # pdb.set_trace()
         patch_size = self.get_size()
         # patch = np.resize(patch, patch_size)
         patch = patch.astype('float32')
