@@ -44,7 +44,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         None
     """
     # Enable mixed precision
-    scaler = torch.cuda.amp.GradScaler()
+    # scaler = torch.cuda.amp.GradScaler()
 
     model.train()  # Set model to training mode
     best_val_loss = 0.0
@@ -62,11 +62,13 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
             loss, pred, mask = model(images)
+            loss.backward()
+            optimizer.step()
 
             # Backward pass and optimize
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            # scaler.scale(loss).backward()
+            # scaler.step(optimizer)
+            # scaler.update()
 
             # Print training progress (optional)
             running_loss += loss.item()
