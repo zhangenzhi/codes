@@ -44,7 +44,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         None
     """
     # Enable mixed precision
-    # scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.cuda.amp.GradScaler()
 
     model.train()  # Set model to training mode
     best_val_loss = 0.0
@@ -67,9 +67,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             optimizer.step()
 
             # Backward pass and optimize
-            # scaler.scale(loss).backward()
-            # scaler.step(optimizer)
-            # scaler.update()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             # Print training progress (optional)
             running_loss += loss.mean().item()
@@ -105,12 +105,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
     logging.info('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_loss))
 
-def mae_train(args):
+def mae_pretrain(args):
     log(args=args)
-    
-    # # Create DataLoader for training and validation
-    # train_dir = os.path.join(args.data_dir, "train")
-    # val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
     dataloaders = imagenet(args=args)
