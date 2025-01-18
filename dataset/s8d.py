@@ -62,7 +62,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Example usage
-    dataset = Spring8Dataset(args.data_dir, args.resolution, normalize=False)
+    dataset = Spring8Dataset(args.data_dir)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
