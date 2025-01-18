@@ -86,7 +86,7 @@ class Spring8DatasetAP(Dataset):
 
     def __getitem__(self, idx):
         img_name = self.image_filenames[idx]
-        image = np.fromfile(img_name, dtype=np.uint16).reshape([self.resolution, self.resolution])
+        image = np.fromfile(img_name, dtype=np.uint16).reshape([self.resolution, self.resolution, 1])
         image = (image[:] / 255).astype(np.uint8)
         seq_img, seq_size, seq_pos = self.patchify(image)
         seq_img = self.transform(seq_img)
