@@ -279,7 +279,7 @@ class MaskedAutoencoderViT(nn.Module):
 
     def forward_encoder(self, x, mask_ratio):
         import pdb
-        pdb.set_trace
+        pdb.set_trace()
         
         # embed patches
         x = self.patch_embed(x)
