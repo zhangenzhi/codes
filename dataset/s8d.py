@@ -106,11 +106,20 @@ if __name__ == "__main__":
                         help='Batch_size for training')
     args = parser.parse_args()
 
-    # Example usage
-    dataset = Spring8Dataset(args.data_dir, args.resolution)
+    # # S8D  usage
+    # dataset = Spring8Dataset(args.data_dir, args.resolution)
+    # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+
+    # # Now you can iterate over the dataloader to get batches of images and masks
+    # for batch in dataloader:
+    #     images = batch
+    #     print(images.shape)
+    
+    # S8D  usage
+    dataset = Spring8DatasetAP(args.data_dir, args.resolution)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        images = batch
+        images,_,_ = batch
         print(images.shape)
