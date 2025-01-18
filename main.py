@@ -8,6 +8,7 @@ from train.vit_imagenet_ap import vit_ap_train
 from utiliz.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.mae_imagenet import mae_pretrain
+from train.mae_s8d_ap import mae_s8dap_pretrain
 from train.unet3d_btcv import unet3d_btcv
 from train.unetr_btcv import unetr_btcv
 
@@ -43,6 +44,8 @@ def main(args):
         vit_ddp(args=args)
     elif args.task == "mae_imagenet":
         mae_pretrain(args=args)
+    elif args.task == "mae_s8d_ap":
+        mae_s8dap_pretrain(args=args)
     elif args.task == "btcv":
         btcv_iter(args=args)
     elif args.task == "unet3d_btcv":

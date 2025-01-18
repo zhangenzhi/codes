@@ -112,11 +112,34 @@ def interpolate_pos_embed(model, checkpoint_model):
             pos_tokens = pos_tokens.permute(0, 2, 3, 1).flatten(1, 2)
             new_pos_embed = torch.cat((extra_tokens, pos_tokens), dim=1)
             checkpoint_model['pos_embed'] = new_pos_embed
+            
+class PatchEmbedding(nn.Module):
+    def __init__(self, seq_length, patch_size, in_channels, embed_dim):
+        super().__init__()
+        self.patch_size = patch_size
+        self.embed_dim = embed_dim
         
-class MaskedAutoencoderViT(nn.Module):
+
+        self.seq_length = seq_length
+        
+        self.projection = nn.Linear(
+            patch_size * patch_size * in_channels,
+            embed_dim,
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.pos_embed = nn.Parameter(
+            torch.randn(1, seq_length + 1, embed_dim)
+        )
+    def forward(self, x):
+        # Convert image to patches
+        B = x.size(0)
+        x = self.projection(x)  # Shape: [B, embed_dim, H', W']
+        return x
+        
+class MaskedAdaptivePatchingViT(nn.Module):
     """ Masked Autoencoder with VisionTransformer backbone
     """
-    def __init__(self, img_size=224, patch_size=16, in_chans=3,
+    def __init__(self, seq_length=1024, patch_size=16, in_chans=3,
                  embed_dim=1024, depth=24, num_heads=16,
                  decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm, norm_pix_loss=False):
@@ -124,8 +147,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         # --------------------------------------------------------------------------
         # MAE encoder specifics
-        # self.patch_embed = PatchEmbedding(img_size, patch_size, in_chans, embed_dim)
-        self.patch_embed = PatchEmbed(img_size=img_size,patch_size=patch_size,in_chans=in_chans,embed_dim=embed_dim)
+        self.patch_embed = PatchEmbedding(seq_length, patch_size, in_chans, embed_dim)
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
@@ -186,34 +208,6 @@ class MaskedAutoencoderViT(nn.Module):
         elif isinstance(m, nn.LayerNorm):
             nn.init.constant_(m.bias, 0)
             nn.init.constant_(m.weight, 1.0)
-
-    def patchify(self, imgs):
-        """
-        imgs: (N, 3, H, W)
-        x: (N, L, patch_size**2 *3)
-        """
-        p = self.patch_embed.patch_size[0]
-        assert imgs.shape[2] == imgs.shape[3] and imgs.shape[2] % p == 0
-
-        h = w = imgs.shape[2] // p
-        x = imgs.reshape(shape=(imgs.shape[0], 3, h, p, w, p))
-        x = torch.einsum('nchpwq->nhwpqc', x)
-        x = x.reshape(shape=(imgs.shape[0], h * w, p**2 * 3))
-        return x
-
-    def unpatchify(self, x):
-        """
-        x: (N, L, patch_size**2 *3)
-        imgs: (N, 3, H, W)
-        """
-        p = self.patch_embed.patch_size[0]
-        h = w = int(x.shape[1]**.5)
-        assert h * w == x.shape[1]
-        
-        x = x.reshape(shape=(x.shape[0], h, w, p, p, 3))
-        x = torch.einsum('nhwpqc->nchpwq', x)
-        imgs = x.reshape(shape=(x.shape[0], 3, h * p, h * p))
-        return imgs
 
     def random_masking(self, x, mask_ratio):
         """
@@ -315,37 +309,13 @@ class MaskedAutoencoderViT(nn.Module):
         loss = self.forward_loss(imgs, pred, mask)
         return loss, pred, mask
 
-def mae_vit_base_patch16_dec512d8b(**kwargs):
-    model = MaskedAutoencoderViT(
+def map_vit_base_patch16_dec512d8b(**kwargs):
+    model = MaskedAdaptivePatchingViT(
         patch_size=16, embed_dim=768, depth=12, num_heads=12,
         decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
 
-def mae_vit_large_patch16_dec512d8b(**kwargs):
-    model = MaskedAutoencoderViT(
-        patch_size=16, embed_dim=1024, depth=24, num_heads=16,
-        decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
-        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
-    return model
-
-
-def mae_vit_huge_patch14_dec512d8b(**kwargs):
-    model = MaskedAutoencoderViT(
-        patch_size=14, embed_dim=1280, depth=32, num_heads=16,
-        decoder_embed_dim=512, decoder_depth=8, decoder_num_heads=16,
-        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
-    return model
-
-
 # set recommended archs
-mae_vit_base_patch16 = mae_vit_base_patch16_dec512d8b  # decoder: 512 dim, 8 blocks
-mae_vit_large_patch16 = mae_vit_large_patch16_dec512d8b  # decoder: 512 dim, 8 blocks
-mae_vit_huge_patch14 = mae_vit_huge_patch14_dec512d8b  # decoder: 512 dim, 8 blocks
-
-if __name__ == "__main__":
-    model = mae_vit_base_patch16()
-    x = torch.randn(8, 3, 224, 224)  # Example input tensor
-    loss, pred, mask= model(x)
-    print(loss, pred.shape, mask.shape)  # Should be [1, 1, 224, 224]
+map_vit_base_patch16 = map_vit_base_patch16_dec512d8b  # decoder: 512 dim, 8 blocks
