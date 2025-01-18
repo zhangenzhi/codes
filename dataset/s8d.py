@@ -15,8 +15,9 @@ import torch.nn.functional as F
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class Spring8Dataset(Dataset):
-    def __init__(self, data_path):
+    def __init__(self, data_path, resolution):
         self.data_path = data_path
+        self.resolution = resolution
         self.subslides = os.listdir(data_path)
         self.image_filenames = []
 
@@ -57,6 +58,8 @@ if __name__ == "__main__":
                         help='base path of dataset.')
     parser.add_argument('--data_dir', default="/lustre/orion/nro108/world-shared/enzhi/spring8data/demo", 
                         help='base path of dataset.')
+    parser.add_argument('--resolution', default=8192, type=int,
+                        help='resolution of img.')
     parser.add_argument('--epoch', default=1, type=int,
                         help='Epoch of training.')
     parser.add_argument('--batch_size', default=128, type=int,
