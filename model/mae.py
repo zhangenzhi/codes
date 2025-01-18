@@ -112,7 +112,42 @@ def interpolate_pos_embed(model, checkpoint_model):
             pos_tokens = pos_tokens.permute(0, 2, 3, 1).flatten(1, 2)
             new_pos_embed = torch.cat((extra_tokens, pos_tokens), dim=1)
             checkpoint_model['pos_embed'] = new_pos_embed
-
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
+        super().__init__()
+        self.patch_size = patch_size
+        self.embed_dim = embed_dim
+        
+        if seq_length==None:
+            seq_length = (img_size // patch_size) ** 2
+        else:
+            seq_length = seq_length
+        
+        self.projection = nn.Linear(
+            patch_size * patch_size * in_channels,
+            embed_dim,
+            # kernel_size=patch_size,
+            # stride=patch_size
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.pos_embed = nn.Parameter(
+            torch.randn(1, seq_length + 1, embed_dim)
+        )
+    def forward(self, x):
+        # Convert image to patches
+        B = x.size(0)
+        x = self.projection(x)  # Shape: [B, embed_dim, H', W']
+        # x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
+        
+        # # Add [CLS] token
+        # cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
+        # x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
+        
+        # # Add positional encoding
+        # x = x + self.pos_embed
+        
+        return x
+        
 class MaskedAutoencoderViT(nn.Module):
     """ Masked Autoencoder with VisionTransformer backbone
     """
@@ -124,7 +159,8 @@ class MaskedAutoencoderViT(nn.Module):
 
         # --------------------------------------------------------------------------
         # MAE encoder specifics
-        self.patch_embed = PatchEmbed(img_size, patch_size, in_chans, embed_dim)
+        # self.patch_embed = PatchEmbedding(img_size, patch_size, in_chans, embed_dim)
+        self.patch_embed = PatchEmbed(img_size=img_size,patch_size=patch_size,in_chans=in_chans,embed_dim=embed_dim)
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
@@ -242,6 +278,8 @@ class MaskedAutoencoderViT(nn.Module):
         return x_masked, mask, ids_restore
 
     def forward_encoder(self, x, mask_ratio):
+        import pdb
+        pdb.set_trace
         # embed patches
         x = self.patch_embed(x)
 
