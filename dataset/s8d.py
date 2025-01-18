@@ -35,7 +35,8 @@ class Spring8Dataset(Dataset):
                             image = os.path.join(sample_slice_path, img_name)
                             if os.path.exists(image):
                                 self.image_filenames.extend([image])
-
+        for p in self.image_filenames:
+            print(p)
         print("img tiles: ", len(self.image_filenames))
         
         self.transform= transforms.Compose([
@@ -72,5 +73,5 @@ if __name__ == "__main__":
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
-        images, masks = batch
-        print(images.shape, masks.shape)
+        images = batch
+        print(images.shape)
