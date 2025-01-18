@@ -115,7 +115,7 @@ if __name__ == "__main__":
     #     images = batch
     #     print(images.shape)
     
-    # S8D  usage
+    # S8DAP  usage
     dataset = Spring8DatasetAP(args.data_dir, args.resolution)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
