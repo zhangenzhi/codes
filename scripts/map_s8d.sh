@@ -14,7 +14,7 @@ module load gcc-native/12.3
 module load rocm/6.2.0
 
 python main.py \
-    --task mae_s8d_ap \
+    --task map_s8d \
     --data_dir /lustre/orion/nro108/world-shared/enzhi/spring8data/demo \
     --batch_size 256 \
     --num_workers 32 \

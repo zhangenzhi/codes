@@ -105,7 +105,7 @@ def pretrain_model(model, train_loader, val_loader, optimizer, num_epochs, outpu
 
     logging.info('Finished Pre-Training. Best Validation Accuracy: {:.4f}'.format(best_val_loss))
 
-def mae_s8dap_pretrain(args):
+def map_s8d_pretrain(args):
     log(args=args)
 
     # Create datasets
@@ -118,8 +118,8 @@ def mae_s8dap_pretrain(args):
     logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
     
     # Create ViT model
-    model = mae_vit_base_patch16()
-    model = nn.DataParallel(model)
+    model = map_vit_base_patch16_dec512d8b()
+    # model = nn.DataParallel(model)
     model = model.to(device)
     
     # Define loss function and optimizer
@@ -208,7 +208,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
     logging.info('Finished Training. Best Validation Accuracy: {:.4f}'.format(best_val_acc))
 
-def mae_finetune(args):
+def map_finetune(args):
     log(args=args)
 
     # Create datasets
