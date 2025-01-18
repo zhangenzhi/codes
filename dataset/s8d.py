@@ -46,7 +46,9 @@ class Spring8Dataset(Dataset):
 
     def __getitem__(self, idx):
         img_name = self.image_filenames[idx]
-        image = Image.open(img_name).convert("L")
+        image = np.fromfile(img_name, dtype=np.uint16).reshape([self.resolution, self.resolution])
+        image = (image[:] / 255).astype(np.uint8)
+        image = self.transform(image)
         return image
     
 if __name__ == "__main__":
