@@ -12,7 +12,7 @@ from torch.utils.data.dataset import Subset
 from torch.utils.data import DataLoader
     
 from torch.utils.data import Dataset
-from map.transform import Patchify
+from map.transform import ImagePatchify
 class ImageNetDataset(Dataset):
     def __init__(self, root_dir, sths=[0,1,3,5,7], cannys=[50, 100], fixed_length=196, patch_size=16, transform=None):
         """
@@ -22,7 +22,7 @@ class ImageNetDataset(Dataset):
             transform (callable, optional): A function/transform to apply to the images.
         """
         self.root_dir = root_dir
-        self.patchify = Patchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
+        self.patchify = ImagePatchify(sths=sths, fixed_length=fixed_length, cannys=cannys, patch_size=patch_size)
         self.transform =  transforms.Compose([
             # transforms.RandomResizedCrop(224),
             # transforms.RandomHorizontalFlip(),
@@ -69,7 +69,7 @@ class ImageNetDataset(Dataset):
         return image, seq_img, label
     
 def test_ap(root_dir, fixed_length=4096,res=256):
-    patchify = Patchify(fixed_length=fixed_length, patch_size=4, sths=[3,5,7], cannys=[70, 120])
+    patchify = ImagePatchify(fixed_length=fixed_length, patch_size=4, sths=[3,5,7], cannys=[70, 120])
     classes = sorted(os.listdir(root_dir))  # Get class directories
     image_paths = []
     for cls_name in classes:
