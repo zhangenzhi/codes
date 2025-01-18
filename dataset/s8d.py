@@ -31,7 +31,7 @@ class Spring8Dataset(Dataset):
                         num_sample_slice = len(os.listdir(sample_slice_path))
                         for i in range(num_sample_slice):
                             # Ensure the image exist
-                            img_name = f"volume_{i}.raw"
+                            img_name = f"volume_{str(i).zfill(3)}.raw"
                             image = os.path.join(sample_slice_path, img_name)
                             if os.path.exists(image):
                                 self.image_filenames.extend([image])
