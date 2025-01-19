@@ -7,6 +7,7 @@ import time
 import os
 from torch.utils.data import DataLoader
 import time
+from torch.utils.data.dataset import Subset
 
 import sys
 sys.path.append("./")
@@ -24,7 +25,7 @@ def log(args):
     )
     
 from model.map import map_vit_base_patch16_dec512d8b
-from dataset.imagenet import imagenet
+from dataset.s8d import Spring8DatasetAP
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -212,9 +213,22 @@ def map_finetune(args):
     log(args=args)
 
     # Create datasets
-    dataloaders = imagenet(args=args)
-    train_loader = dataloaders["train"]
-    val_loader = dataloaders["val"]
+    dataset = Spring8DatasetAP(args.data_dir, args.resolution, fixed_length=196)
+    dataset_size = len(dataset)
+    train_size = int(0.85 * dataset_size)
+    val_size = dataset_size - train_size
+    test_size = val_size
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, test_size))
+    
+    train_indices = list(range(0, train_size))
+    val_indices = list(range(train_size, dataset_size))
+    train_set = Subset(dataset, train_indices)
+    val_set = test_set = Subset(dataset, val_indices)
+    # train_set, val_set, test_set = random_split(dataset, [train_size, val_size, test_size])
+
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, num_workers=0, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=False)
     
     train_size = len(train_loader)
     val_size = len(val_loader)
