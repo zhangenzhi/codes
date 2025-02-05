@@ -59,6 +59,8 @@ class ImageNetDataset(Dataset):
         image = Image.open(img_path).convert("RGB")
         np_image = np.array(image)
         np_image = cv.resize(np_image, dsize=[256,256])
+        import pdb
+        pdb.set_trace()
         seq_img, seq_size, seq_pos = self.patchify(np_image)
         seq_img = self.seq_transform(seq_img)
         
@@ -85,8 +87,8 @@ def test_ap(root_dir, fixed_length=4096,res=256):
         image = cv.resize(image, dsize=[res,res])
         seq_img, seq_size, seq_pos = patchify(image)
         avg_size += np.sum(seq_size)
-        # import pdb
-        # pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         avg_length += len(seq_pos)
         if len(seq_pos) != fixed_length:
             print(len(seq_pos), img_path, idx)
