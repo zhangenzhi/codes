@@ -59,7 +59,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             seq_img = seq_img.view(-1, 196, 16*16*3) 
             seq_pos = seq_pos.to(device, non_blocking=True)
             # images = torch.reshape(images,shape=(-1,3,224, 224))
-            # labels = labels.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
