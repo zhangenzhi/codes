@@ -39,15 +39,45 @@ import numpy as np
 import torch.nn as nn
 from einops import rearrange
 
-def get_sincos_encoding_from_tree(coordinates, embedding_dim):
-    freq = 1 / np.power(10000, (2 * (np.arange(embedding_dim) // 2)) / embedding_dim)
-    encodings = []
-    for x, y in coordinates:
-        x_enc = np.sin(x * freq[::2])  # Sine for x-coordinates
-        y_enc = np.cos(y * freq[1::2])  # Cosine for y-coordinates
-        encodings.append(np.concatenate([x_enc, y_enc]))
-    return np.array(encodings)
+# def get_sincos_encoding_from_tree(coordinates, embedding_dim):
+#     freq = 1 / np.power(10000, (2 * (np.arange(embedding_dim) // 2)) / embedding_dim)
+#     encodings = []
+#     for x, y in coordinates:
+#         x_enc = np.sin(x * freq[::2])  # Sine for x-coordinates
+#         y_enc = np.cos(y * freq[1::2])  # Cosine for y-coordinates
+#         encodings.append(np.concatenate([x_enc, y_enc]))
+#     return np.array(encodings)
+
+def get_sincos_encoding_from_tree(coordinates: torch.Tensor, embedding_dim: int):
+    """
+    Compute the sin-cos positional encodings for a batch of coordinates.
+
+    Args:
+        coordinates (torch.Tensor): Tensor of shape [B, L, 2] where B is the batch size,
+                                     L is the sequence length, and 2 corresponds to (x, y) coordinates.
+        embedding_dim (int): Dimension of the positional encoding.
+
+    Returns:
+        torch.Tensor: Sin-cos encoding of shape [B, L, embedding_dim].
+    """
+    B, L, _ = coordinates.shape
+
+    # Compute frequency scaling factors [embedding_dim // 2]
+    freq = 1.0 / torch.pow(10000, (2 * torch.arange(embedding_dim // 2)) / embedding_dim).to(coordinates.device)
+
+    # Split coordinates into x and y components
+    x_coords = coordinates[:, :, 0].unsqueeze(-1)  # Shape: [B, L, 1]
+    y_coords = coordinates[:, :, 1].unsqueeze(-1)  # Shape: [B, L, 1]
+
+    # Compute sine for x-coordinates and cosine for y-coordinates
+    x_enc = torch.sin(x_coords * freq)  # Shape: [B, L, embedding_dim // 2]
+    y_enc = torch.cos(y_coords * freq)  # Shape: [B, L, embedding_dim // 2]
+
+    # Concatenate encodings along the last dimension
+    encoding = torch.cat([x_enc, y_enc], dim=-1)  # Shape: [B, L, embedding_dim]
     
+    return encoding
+
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
         super().__init__()
