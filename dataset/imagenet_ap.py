@@ -59,10 +59,10 @@ class ImageNetDataset(Dataset):
         image = Image.open(img_path).convert("RGB")
         np_image = np.array(image)
         np_image = cv.resize(np_image, dsize=[256,256])
-        import pdb
-        pdb.set_trace()
         seq_img, seq_size, seq_pos = self.patchify(np_image)
         seq_img = self.seq_transform(seq_img)
+        seq_size = self.seq_transform(seq_size)
+        seq_pos = self.seq_transform(seq_pos)
         
         # Apply transformations
         if self.transform:
