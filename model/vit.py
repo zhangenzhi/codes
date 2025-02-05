@@ -105,6 +105,8 @@ class PatchEmbedding(nn.Module):
         # )
         
     def forward(self, x, coordinates=None):
+        import pdb
+        pdb.set_trace()
         if coordinates!=None:
             pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
             # Append positional embedding for the CLS token as a zero vector or learnable parameter
