@@ -143,7 +143,7 @@ def vit_ap_train(args):
     # Create ViT model
     # model = create_vit_model(args.pretrained)
     model = VisionTransformer(img_size=224, patch_size=16, in_channels=3, num_classes=1000, seq_length=196)
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     model = model.to(device)
     
     # Define loss function and optimizer
