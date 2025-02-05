@@ -105,8 +105,6 @@ class PatchEmbedding(nn.Module):
         # )
         
     def forward(self, x, coordinates=None):
-        import pdb
-        pdb.set_trace()
         if coordinates!=None:
             pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
             # Append positional embedding for the CLS token as a zero vector or learnable parameter
@@ -202,8 +200,8 @@ class VisionTransformer(nn.Module):
         self.head = nn.Linear(embed_dim, num_classes)
         
     def forward(self, x, coordinates=None):
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         x = self.patch_embed(x, coordinates=coordinates)
         x = self.blocks(x)
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
