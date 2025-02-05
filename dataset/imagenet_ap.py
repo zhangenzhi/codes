@@ -63,7 +63,7 @@ class ImageNetDataset(Dataset):
         seq_img = self.seq_transform(seq_img)
         seq_size = torch.Tensor(seq_size)
         seq_pos = torch.Tensor(seq_pos)
-        print(seq_img.shape, seq_size.shape, seq_pos.shape)
+        # print(seq_img.shape, seq_size.shape, seq_pos.shape)
         # Apply transformations
         if self.transform:
             image = self.transform(image)
