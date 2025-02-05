@@ -108,7 +108,7 @@ class PatchEmbedding(nn.Module):
         if coordinates!=None:
             pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
             # Append positional embedding for the CLS token as a zero vector or learnable parameter
-            cls_pos_embed = torch.zeros(1, 1, self.embed_dim, device=pos_embed.device)  
+            cls_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
             pos_embed = torch.cat([cls_pos_embed.expand(pos_embed.size(0), -1, -1), pos_embed], dim=1)
 
         self.pos_embed = pos_embed
