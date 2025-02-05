@@ -160,11 +160,13 @@ class FixedQuadTree:
             # pdb.set_trace()
             seq_patch += [np.zeros(shape=(h2,w2,c2))] * (self.fixed_length-len(seq_patch))
             seq_size += [0]*(self.fixed_length-len(seq_size))
+            seq_pos += [0,0]*(self.fixed_length-len(seq_size))
         elif len(seq_patch)>self.fixed_length:
             pass
             # random_drop
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         assert len(seq_size)==self.fixed_length, "Not equal fixed legnth."
+        assert len(seq_pos)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch, seq_size, seq_pos
     
     def deserialize(self, seq, patch_size, channel):
