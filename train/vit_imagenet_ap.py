@@ -53,23 +53,23 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         running_loss = 0.0
         correct = 0
         for i, (image, seq_img, seq_size, seq_pos, labels) in enumerate(train_loader):
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             seq_img = seq_img.to(device, non_blocking=True)
             seq_img = seq_img.view(-1, 196, 16*16*3) 
             # images = torch.reshape(images,shape=(-1,3,224, 224))
-            labels = labels.to(device, non_blocking=True)
-            optimizer.zero_grad()   
+            # labels = labels.to(device, non_blocking=True)
+            # optimizer.zero_grad()   
             
-            # Forward pass, calculate loss
-            with torch.cuda.amp.autocast():
-                outputs = model(seq_img, coordinate=seq_pos)
-                loss = criterion(outputs, labels)
+            # # Forward pass, calculate loss
+            # with torch.cuda.amp.autocast():
+            #     outputs = model(seq_img, coordinate=seq_pos)
+            #     loss = criterion(outputs, labels)
 
-            # Backward pass and optimize
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
+            # # Backward pass and optimize
+            # scaler.scale(loss).backward()
+            # scaler.step(optimizer)
+            # scaler.update()
 
             # Print training progress (optional)
             running_loss += loss.item()
