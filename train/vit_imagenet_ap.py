@@ -63,7 +63,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             
             # # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
-            #     outputs = model(seq_img, coordinate=seq_pos)
+            #     outputs = model(seq_img, coordinates=seq_pos)
             #     loss = criterion(outputs, labels)
 
             # # Backward pass and optimize
@@ -72,14 +72,14 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # scaler.update()
 
             # Print training progress (optional)
-            running_loss += loss.item()
-            if i % 100 == 99:  # Print every 100 mini-batches
-                _, predicted = torch.max(outputs.data, 1)
-                correct += (predicted == labels).sum().item()
-                logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
-                      (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
-                running_loss = 0.0
-                correct = 0
+            # running_loss += loss.item()
+            # if i % 100 == 99:  # Print every 100 mini-batches
+            #     _, predicted = torch.max(outputs.data, 1)
+            #     correct += (predicted == labels).sum().item()
+            #     logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
+            #           (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
+            #     running_loss = 0.0
+            #     correct = 0
 
         # Validate after each epoch
         model.eval()

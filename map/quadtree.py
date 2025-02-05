@@ -166,7 +166,7 @@ class FixedQuadTree:
             # random_drop
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         assert len(seq_size)==self.fixed_length, "Not equal fixed legnth."
-        print("seq_pos length:", len(seq_pos), "seq_patch length:", len(seq_patch))
+        # print("seq_pos length:", len(seq_pos), "seq_patch length:", len(seq_patch))
         assert len(seq_pos)==self.fixed_length, "Not equal fixed legnth."
         return seq_patch, seq_size, seq_pos
     
