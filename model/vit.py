@@ -100,14 +100,18 @@ class PatchEmbedding(nn.Module):
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
-        self.pos_embed = nn.Parameter(
-            torch.randn(1, seq_length + 1, embed_dim)
-        )
+        # self.pos_embed = nn.Parameter(
+        #     torch.randn(1, seq_length + 1, embed_dim)
+        # )
         
     def forward(self, x, coordinates=None):
         if coordinates!=None:
-            self.pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
-        
+            pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
+            # Append positional embedding for the CLS token as a zero vector or learnable parameter
+            cls_pos_embed = torch.zeros(1, 1, self.embed_dim, device=pos_embed.device)  
+            pos_embed = torch.cat([cls_pos_embed.expand(pos_embed.size(0), -1, -1), pos_embed], dim=1)
+
+        self.pos_embed = pos_embed
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
