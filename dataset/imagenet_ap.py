@@ -65,8 +65,6 @@ class ImageNetDataset(Dataset):
         # Apply transformations
         if self.transform:
             image = self.transform(image)
-        import pdb
-        pdb.set_trace()
         return image, seq_img, seq_size, seq_pos, label
     
 def test_ap(root_dir, fixed_length=4096,res=256):
