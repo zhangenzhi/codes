@@ -52,18 +52,16 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
         running_loss = 0.0
         correct = 0
-        for i, (gd, images, labels) in enumerate(train_loader):
-            # import pdb
-            # pdb.set_trace()
-            images = images.to(device, non_blocking=True)
-            images = images.view(-1, 196, 16*16*3) 
+        for i, (image, seq_img, seq_size, seq_pos, labels) in enumerate(train_loader):
+            seq_img = seq_img.to(device, non_blocking=True)
+            seq_img = seq_img.view(-1, 196, 16*16*3) 
             # images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
             with torch.cuda.amp.autocast():
-                outputs = model(images)
+                outputs = model(seq_img, coordinate=seq_pos)
                 loss = criterion(outputs, labels)
 
             # Backward pass and optimize
@@ -88,16 +86,16 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         val_loss = 0.0
         num_iter = 0
         with torch.no_grad():
-            for gd, images, labels in val_loader:
-                images = images.to(device, non_blocking=True)
-                images = images.view(-1, 196, 16*16*3) 
+            for image, seq_img, seq_size, seq_pos, labels in val_loader:
+                seq_img = seq_img.to(device, non_blocking=True)
+                seq_img = seq_img.view(-1, 196, 16*16*3) 
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
-                print(images.dtype)
+                print(f"seq_img:{seq_img.shape},seq_pos:{seq_pos.shape}, seq_size:{seq_size.shape}")
                 labels = labels.to(device, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
                     try:
-                        outputs = model(images)
+                        outputs = model(seq_img, coordinate=seq_pos)
                     except:
                         import pdb
                         pdb.set_trace()

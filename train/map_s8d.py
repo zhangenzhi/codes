@@ -110,7 +110,7 @@ def map_s8d_pretrain(args):
     log(args=args)
 
     # Create datasets
-    dataloaders = imagenet(args=args)
+    dataloaders = Spring8DatasetAP(args=args)
     train_loader = dataloaders["train"]
     val_loader = dataloaders["val"]
     

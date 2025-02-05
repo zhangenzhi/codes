@@ -39,7 +39,7 @@ import numpy as np
 import torch.nn as nn
 from einops import rearrange
 
-def sinusoidal_encoding(coordinates, embedding_dim):
+def get_sincos_encoding_from_tree(coordinates, embedding_dim):
     freq = 1 / np.power(10000, (2 * (np.arange(embedding_dim) // 2)) / embedding_dim)
     encodings = []
     for x, y in coordinates:
@@ -47,19 +47,6 @@ def sinusoidal_encoding(coordinates, embedding_dim):
         y_enc = np.cos(y * freq[1::2])  # Cosine for y-coordinates
         encodings.append(np.concatenate([x_enc, y_enc]))
     return np.array(encodings)
-
-# Learnable positional embedding
-class AdaptivePositionalEmbedding(nn.Module):
-    def __init__(self, embedding_dim=768, grid_size=14):
-        super().__init__()
-        self.embedding_table = nn.Embedding(grid_size * grid_size, embedding_dim)
-
-    def forward(self, coordinates):
-        # Convert (x, y) coordinates into flat indices
-        grid_size = int(len(coordinates) ** 0.5)
-        indices = [x * grid_size + y for x, y in coordinates]
-        indices = torch.tensor(indices, dtype=torch.long)
-        return self.embedding_table(indices)
     
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
@@ -81,15 +68,16 @@ class PatchEmbedding(nn.Module):
         self.projection = nn.Linear(
             patch_size * patch_size * in_channels,
             embed_dim,
-            # kernel_size=patch_size,
-            # stride=patch_size
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(
             torch.randn(1, seq_length + 1, embed_dim)
         )
         
-    def forward(self, x):
+    def forward(self, x, coordinates=None):
+        if coordinates!=None:
+            self.pos_embed = get_sincos_encoding_from_tree(coordinates=coordinates, embedding_dim=self.embed_dim)
+        
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
@@ -177,8 +165,8 @@ class VisionTransformer(nn.Module):
         self.norm = nn.LayerNorm(embed_dim)
         self.head = nn.Linear(embed_dim, num_classes)
         
-    def forward(self, x):
-        x = self.patch_embed(x)
+    def forward(self, x, coordinates=None):
+        x = self.patch_embed(x, coordinates=coordinates)
         x = self.blocks(x)
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
         x = self.head(x)
