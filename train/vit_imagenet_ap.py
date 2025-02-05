@@ -57,6 +57,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # pdb.set_trace()
             seq_img = seq_img.to(device, non_blocking=True)
             seq_img = seq_img.view(-1, 196, 16*16*3) 
+            seq_pos = seq_pos.to(device, non_blocking=True)
             # images = torch.reshape(images,shape=(-1,3,224, 224))
             # labels = labels.to(device, non_blocking=True)
             optimizer.zero_grad()   
