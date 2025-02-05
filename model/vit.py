@@ -166,6 +166,8 @@ class VisionTransformer(nn.Module):
         self.head = nn.Linear(embed_dim, num_classes)
         
     def forward(self, x, coordinates=None):
+        import pdb
+        pdb.set_trace()
         x = self.patch_embed(x, coordinates=coordinates)
         x = self.blocks(x)
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
