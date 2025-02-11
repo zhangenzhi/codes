@@ -64,9 +64,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
-            with torch.cuda.amp.autocast():
-                outputs = model(seq_pos, seq_size=seq_size)
-                loss = criterion(outputs, labels)
+            # with torch.cuda.amp.autocast():
+            outputs = model(seq_pos, seq_size=seq_size)
+            loss = criterion(outputs, labels)
 
             # Backward pass and optimize
             scaler.scale(loss).backward()
