@@ -22,9 +22,9 @@ def log(args):
     
 from model.vit import VisionTransformer, AF_ViT
 from dataset.imagenet_ap import ImageNetDataset
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cpu")
 
-device = torch.device("cpu")
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
     """
     Trains the ViT model on the ImageNet dataset with validation.
