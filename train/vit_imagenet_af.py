@@ -53,8 +53,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         running_loss = 0.0
         correct = 0
         for i, (image, seq_img, seq_size, seq_pos, labels) in enumerate(train_loader):
-            # import pdb 
-            # pdb.set_trace()
+            import pdb 
+            pdb.set_trace()
             seq_img = seq_img.to(device, non_blocking=True)
             seq_img = seq_img.view(-1, 196, 16*16*3) 
             seq_pos = seq_pos.to(device, non_blocking=True)
