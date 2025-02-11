@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A nro108
-#SBATCH -o vit_imagenet_ap.o%J
+#SBATCH -o vit_imagenet_af.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 1
 #SBATCH -p batch
@@ -24,4 +24,5 @@ python main.py \
     --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet \
     --batch_size 512 \
     --num_workers 32 \
-    --num_epochs 100
+    --num_epochs 100 \
+    --savefile dep
