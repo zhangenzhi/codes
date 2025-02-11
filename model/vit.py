@@ -233,7 +233,7 @@ class PatchSizeEmbedding(nn.Module):
     def forward(self, x, seq_size=None):
         # import pdb
         # pdb.set_trace()
-        
+        seq_size = seq_size.view(-1, -1, 1)
         patch_size_embed = self.linear_projection(seq_size)
         patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
         patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
