@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
     parser.add_argument('--logname', type=str, default='train.log', help='logging of task.')
     parser.add_argument('--output', type=str, default='./output', help='output dir')
+    parser.add_argument('--savefile', type=str, default='vit-imagenet', help='output dir')
     parser.add_argument('--gpus', type=int, default=8, help='Epochs for iteration')
     parser.add_argument('--nodes', type=int, default=1, help='Epochs for iteration')
     parser.add_argument('--data_dir', type=str, default='/Volumes/data/dataset/imagenet', help='Path to the ImageNet dataset directory')

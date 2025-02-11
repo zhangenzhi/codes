@@ -13,9 +13,9 @@ import logging
 
 # Configure logging
 def log(args):
-    os.makedirs(args.output, exist_ok=True)
+    os.makedirs(os.path.join(args.output,args.savefile), exist_ok=True)
     logging.basicConfig(
-        filename=os.path.join(args.output, "out.log"),
+        filename=os.path.join(os.path.join(args.output,args.savefile), "out.log"),
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
@@ -25,7 +25,7 @@ from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, save_path):
     """
     Trains the ViT model on the ImageNet dataset with validation.
 
@@ -117,7 +117,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), "best_vit_model.pth")
+            torch.save(model.state_dict(), os.path.join(save_path, "best_score_model.pth"))
 
         logging.info('Finished Training Step %d' % (epoch + 1))
 
@@ -131,8 +131,8 @@ def vit_ap_train(args):
     val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
-    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16, sths=[9])
-    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16, sths=[9])
+    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16, sths=[0,1,3,5,7,9])
+    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16, sths=[0,1,3,5,7,9])
     
     train_size = len(train_set)
     val_size = len(val_set)
@@ -147,11 +147,15 @@ def vit_ap_train(args):
     model = VisionTransformer(img_size=224, patch_size=16, in_channels=3, num_classes=1000, seq_length=196)
     model = nn.DataParallel(model)
     model = model.to(device)
+    save_path = os.path.join(args.output,args.savefile)
+    if args.reload:
+        if os.path.exists(os.path.join(save_path, "best_score_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(save_path, "best_score_model.pth")))
     
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Train the model
-    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, save_path=save_path)
 
