@@ -222,15 +222,15 @@ class PatchSizeEmbedding(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
         # Create the embedding layer
         
-        # self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
+        self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
 
         self.patch_embed = nn.Parameter(
-            torch.randn(1, seq_length + 1, embed_dim)
+            torch.randn(512, seq_length + 1, embed_dim)
         )
         
     def forward(self, x, seq_size=None):
 
-    #    patch_size_embed = self.embedding_layer(seq_size)
+        patch_size_embed = self.embedding_layer(seq_size)
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
@@ -241,17 +241,14 @@ class PatchSizeEmbedding(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
         
         # Add positional encoding
-        # x = x + patch_size_embed
-        x = x + self.patch_embed
+        x = x + patch_size_embed
+        # x = x + self.patch_embed
         
         return x
     
 class AF_ViT(nn.Module):
     def __init__(
         self,
-        img_size=224,
-        patch_size=16,
-        in_channels=3,
         num_classes=1000,
         embed_dim=768,
         depth=12,
