@@ -5,6 +5,7 @@ from dataset.imagenet import imagenet_iter
 from dataset.btcv import btcv_iter
 
 from train.vit_imagenet_ap import vit_ap_train
+from train.vit_imagenet_af import vit_af_train
 from utiliz.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.mae_imagenet import mae_pretrain
@@ -40,6 +41,8 @@ def main(args):
         vit_train(args=args)
     elif args.task == "vit_imagenet_ap":
         vit_ap_train(args=args)
+    elif args.task == "vit_imagenet_af":
+        vit_af_train(args=args)
     elif args.task == "vit_imagenet_ddp":
         vit_ddp(args=args)
     elif args.task == "mae_imagenet":

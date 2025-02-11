@@ -119,7 +119,7 @@ class FixedQuadTree:
         while len(self.nodes)<self.fixed_length:
             bbox, value = max(self.nodes, key=lambda x:x[1])
             idx = self.nodes.index([bbox, value])
-            if sum(bbox.get_size())<4:
+            if bbox.get_size()[0]==2:
                 break
 
             x1,x2,y1,y2 = bbox.get_coord()
@@ -164,6 +164,7 @@ class FixedQuadTree:
         elif len(seq_patch)>self.fixed_length:
             pass
             # random_drop
+
         assert len(seq_patch)==self.fixed_length, "Not equal fixed legnth."
         assert len(seq_size)==self.fixed_length, "Not equal fixed legnth."
         # print("seq_pos length:", len(seq_pos), "seq_patch length:", len(seq_patch))
