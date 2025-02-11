@@ -233,9 +233,9 @@ class PatchSizeEmbedding(nn.Module):
         # import pdb
         # pdb.set_trace()
         
-        # patch_size_embed = self.embedding_layer(seq_size)
-        # patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
-        # patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
+        patch_size_embed = self.embedding_layer(seq_size)
+        patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
+        patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
         
         # Convert image to patches
         B = x.size(0)
@@ -246,7 +246,7 @@ class PatchSizeEmbedding(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
         
         # Add positional encoding
-        # x = x + patch_size_embed
+        x = x + patch_size_embed
         # x = x + self.patch_embed
         
         return x
