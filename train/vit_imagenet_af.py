@@ -22,9 +22,9 @@ def log(args):
     
 from model.vit import VisionTransformer, AF_ViT
 from dataset.imagenet_ap import ImageNetDataset
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
+device = torch.device("cpu")
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
     """
     Trains the ViT model on the ImageNet dataset with validation.
@@ -46,7 +46,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     model.train()  # Set model to training mode
     best_val_acc = 0.0
     print("Training the ViT model for {} epochs...".format(num_epochs))
-
+    
     for epoch in range(num_epochs):
         start_time = time.time()
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
