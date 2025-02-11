@@ -98,6 +98,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
                 labels = labels.to(device, non_blocking=True)
                 seq_pos = seq_pos.to(device, non_blocking=True)
+                seq_size = seq_size.view(-1, 196, 1)
                 seq_size = seq_size.to(device, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
