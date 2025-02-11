@@ -77,8 +77,7 @@ def get_sincos_encoding_from_tree(coordinates: torch.Tensor, embedding_dim: int)
     encoding = torch.cat([x_enc, y_enc], dim=-1)  # Shape: [B, L, embedding_dim]
     
     return encoding
-
-class PatchEmbedding(nn.Module):
+class PatchEmbedding2D(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
         super().__init__()
         self.patch_size = patch_size
@@ -112,6 +111,41 @@ class PatchEmbedding(nn.Module):
             pos_embed = torch.cat([cls_pos_embed.expand(pos_embed.size(0), -1, -1), pos_embed], dim=1)
 
         self.pos_embed = pos_embed
+        # Convert image to patches
+        B = x.size(0)
+        x = self.projection(x)  # Shape: [B, embed_dim, H', W']
+        # x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
+        
+        # Add [CLS] token
+        cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
+        x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
+        
+        # Add positional encoding
+        x = x + self.pos_embed
+        
+        return x
+    
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim, seq_length=None):
+        super().__init__()
+        self.patch_size = patch_size
+        self.embed_dim = embed_dim
+        
+        if seq_length==None:
+            seq_length = (img_size // patch_size) ** 2
+        else:
+            seq_length = seq_length
+        
+        self.projection = nn.Linear(
+            patch_size * patch_size * in_channels,
+            embed_dim,
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.pos_embed = nn.Parameter(
+            torch.randn(1, seq_length + 1, embed_dim)
+        )
+        
+    def forward(self, x):
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
@@ -178,6 +212,35 @@ class TransformerBlock(nn.Module):
         return x
 
 class VisionTransformer(nn.Module):
+    def __init__(
+        self,
+        img_size=224,
+        patch_size=16,
+        in_channels=3,
+        num_classes=1000,
+        embed_dim=768,
+        depth=12,
+        num_heads=12,
+        mlp_dim=3072,
+        dropout=0.1,
+        seq_length=None,
+    ):
+        super().__init__()
+        self.patch_embed = PatchEmbedding(img_size, patch_size, in_channels, embed_dim, seq_length=seq_length)
+        self.blocks = nn.Sequential(
+            *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
+        )
+        self.norm = nn.LayerNorm(embed_dim)
+        self.head = nn.Linear(embed_dim, num_classes)
+        
+    def forward(self, x):
+        x = self.patch_embed(x)
+        x = self.blocks(x)
+        x = self.norm(x[:, 0])  # Use the [CLS] token for classification
+        x = self.head(x)
+        return x
+    
+class VisionTransformer2DPos(nn.Module):
     def __init__(
         self,
         img_size=224,

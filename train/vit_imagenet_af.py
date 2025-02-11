@@ -25,7 +25,7 @@ from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, save_path):
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, save_path, seq_length):
     """
     Trains the ViT model on the ImageNet dataset with validation.
 
@@ -56,9 +56,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # import pdb 
             # pdb.set_trace()
             seq_img = seq_img.to(device, non_blocking=True)
-            seq_img = seq_img.view(-1, 196, 16*16*3) 
+            seq_img = seq_img.view(-1, seq_length, 8*8*3) 
             seq_pos = seq_pos.to(device, non_blocking=True)
-            seq_size = seq_size.view(-1, 196, 1)
+            seq_size = seq_size.view(-1, seq_length, 1)
             seq_size = seq_size.to(device, non_blocking=True)
             # images = torch.reshape(images,shape=(-1,3,224, 224))
             labels = labels.to(device, non_blocking=True)
@@ -94,11 +94,11 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         with torch.no_grad():
             for image, seq_img, seq_size, seq_pos, labels in val_loader:
                 seq_img = seq_img.to(device, non_blocking=True)
-                seq_img = seq_img.view(-1, 196, 16*16*3) 
+                seq_img = seq_img.view(-1, seq_length, 8*8*3) 
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
                 labels = labels.to(device, non_blocking=True)
                 seq_pos = seq_pos.to(device, non_blocking=True)
-                seq_size = seq_size.view(-1, 196, 1)
+                seq_size = seq_size.view(-1, seq_length, 1)
                 seq_size = seq_size.to(device, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
@@ -135,8 +135,8 @@ def vit_af_train(args):
     val_dir = os.path.join(args.data_dir,"val")
 
     # Create datasets
-    train_set = ImageNetDataset(train_dir, fixed_length=196, patch_size=16, sths=[1,3,5,7,9])
-    val_set = ImageNetDataset(val_dir, fixed_length=196, patch_size=16, sths=[9])
+    train_set = ImageNetDataset(train_dir, fixed_length=args.seq_length, patch_size=8, sths=[1,3,5,7,9])
+    val_set = ImageNetDataset(val_dir, fixed_length=args.seq_length, patch_size=8, sths=[1,3,5,7,9])
     
     train_size = len(train_set)
     val_size = len(val_set)
@@ -148,7 +148,7 @@ def vit_af_train(args):
     
     # Create ViT model
     # model = create_vit_model(args.pretrained)
-    model = AF_ViT(num_classes=1000, seq_length=512)
+    model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
     model = nn.DataParallel(model)
     model = model.to(device)
     save_path = os.path.join(args.output, args.savefile)
@@ -161,5 +161,5 @@ def vit_af_train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Train the model
-    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, save_path=save_path)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, save_path=save_path, seq_length=args.seq_length)
 

@@ -25,4 +25,5 @@ python main.py \
     --batch_size 512 \
     --num_workers 32 \
     --num_epochs 100 \
-    --savefile dep
+    --seq_length 514 \
+    --savefile dep-514
