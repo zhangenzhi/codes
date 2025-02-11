@@ -220,21 +220,24 @@ class PatchSizeEmbedding(nn.Module):
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        self.emb_padding = nn.Parameter(torch.randn(1, 1, embed_dim))
         # Create the embedding layer
         
         self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
 
-        self.patch_embed = nn.Parameter(
-            torch.randn(512, seq_length + 1, embed_dim)
-        )
+        # self.patch_embed = nn.Parameter(
+        #     torch.randn(512, seq_length + 1, embed_dim)
+        # )
         
     def forward(self, x, seq_size=None):
 
         patch_size_embed = self.embedding_layer(seq_size)
+        patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
+        patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
+        
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
-        # x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
         
         # Add [CLS] token
         cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
