@@ -73,8 +73,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 pdb.set_trace()
                 
             # Backward pass and optimize
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
             scaler.scale(loss).backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
             scaler.step(optimizer)
             scaler.update()
 
