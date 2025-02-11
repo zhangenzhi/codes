@@ -207,3 +207,70 @@ class VisionTransformer(nn.Module):
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
         x = self.head(x)
         return x
+
+class PatchSizeEmbedding(nn.Module):
+    def __init__(self, num_embeddings, embed_dim, seq_length):
+        super().__init__()
+        
+        self.embed_dim = embed_dim
+        self.seq_length = seq_length
+        
+        self.projection = nn.Linear(
+            2,
+            embed_dim,
+        )
+        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
+        # Create the embedding layer
+        
+        # self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
+
+        self.patch_embed = nn.Parameter(
+            torch.randn(1, seq_length + 1, embed_dim)
+        )
+        
+    def forward(self, x, seq_size=None):
+
+    #    patch_size_embed = self.embedding_layer(seq_size)
+        # Convert image to patches
+        B = x.size(0)
+        x = self.projection(x)  # Shape: [B, embed_dim, H', W']
+        # x = rearrange(x, 'b c h w -> b (h w) c')  # Shape: [B, N, embed_dim]
+        
+        # Add [CLS] token
+        cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
+        x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
+        
+        # Add positional encoding
+        # x = x + patch_size_embed
+        x = x + self.patch_embed
+        
+        return x
+    
+class AF_ViT(nn.Module):
+    def __init__(
+        self,
+        img_size=224,
+        patch_size=16,
+        in_channels=3,
+        num_classes=1000,
+        embed_dim=768,
+        depth=12,
+        num_heads=12,
+        mlp_dim=3072,
+        dropout=0.1,
+        seq_length=None,
+    ):
+        super().__init__()
+        self.patch_embed = PatchSizeEmbedding(num_embeddings=16, embed_dim=embed_dim, seq_length=seq_length)
+        self.blocks = nn.Sequential(
+            *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
+        )
+        self.norm = nn.LayerNorm(embed_dim)
+        self.head = nn.Linear(embed_dim, num_classes)
+        
+    def forward(self, x, seq_size=None):
+        x = self.patch_embed(x, seq_size=seq_size)
+        x = self.blocks(x)
+        x = self.norm(x[:, 0])  # Use the [CLS] token for classification
+        x = self.head(x)
+        return x

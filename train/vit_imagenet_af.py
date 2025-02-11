@@ -20,7 +20,7 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
     
-from model.vit import VisionTransformer, create_vit_model
+from model.vit import VisionTransformer, AF_ViT
 from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -64,7 +64,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             
             # Forward pass, calculate loss
             with torch.cuda.amp.autocast():
-                outputs = model(seq_img, coordinates=seq_pos)
+                outputs = model(seq_pos, seq_size=seq_size)
                 loss = criterion(outputs, labels)
 
             # Backward pass and optimize
@@ -82,6 +82,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 running_loss = 0.0
                 correct = 0
 
+        print(f"seq_img:{seq_img.shape},seq_pos:{seq_pos.shape}, seq_size:{seq_size.shape}")
         # Validate after each epoch
         model.eval()
         val_correct = 0
@@ -93,13 +94,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 seq_img = seq_img.to(device, non_blocking=True)
                 seq_img = seq_img.view(-1, 196, 16*16*3) 
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
-                print(f"seq_img:{seq_img.shape},seq_pos:{seq_pos.shape}, seq_size:{seq_size.shape}")
                 labels = labels.to(device, non_blocking=True)
                 seq_pos = seq_pos.to(device, non_blocking=True)
                 
                 with torch.cuda.amp.autocast():
                     try:
-                        outputs = model(seq_img, coordinates=seq_pos)
+                        outputs = model(seq_pos, seq_size=seq_size)
                     except:
                         import pdb
                         pdb.set_trace()
@@ -144,7 +144,7 @@ def vit_af_train(args):
     
     # Create ViT model
     # model = create_vit_model(args.pretrained)
-    model = VisionTransformer(img_size=224, patch_size=16, in_channels=3, num_classes=1000, seq_length=196)
+    model = AF_ViT(num_classes=1000, seq_length=196)
     # model = nn.DataParallel(model)
     model = model.to(device)
     
