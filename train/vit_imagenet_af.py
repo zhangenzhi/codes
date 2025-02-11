@@ -20,7 +20,7 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
     
-from model.vit import VisionTransformer, AF_ViT
+from model.vit import AF_ViT
 from dataset.imagenet_ap import ImageNetDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")
@@ -68,8 +68,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             with torch.cuda.amp.autocast():
                 outputs = model(seq_pos, seq_size=seq_size)
                 loss = criterion(outputs, labels)
-
+            if torch.isnan(loss):
+                import pdb
+                pdb.set_trace()
+                
             # Backward pass and optimize
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
