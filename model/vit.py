@@ -220,7 +220,7 @@ class PatchSizeEmbedding(nn.Module):
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
-        self.emb_padding = nn.Parameter(torch.randn(1, 1, embed_dim))
+        # self.emb_padding = nn.Parameter(torch.randn(1, 1, embed_dim))
         # Create the embedding layer
         
         self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
