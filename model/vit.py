@@ -279,7 +279,7 @@ class PatchSizeEmbedding(nn.Module):
         self.seq_length = seq_length
         
         self.projection = nn.Linear(
-            2,
+            3,
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
@@ -289,16 +289,16 @@ class PatchSizeEmbedding(nn.Module):
         # self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
         self.linear_projection = nn.Linear(1, embed_dim)
 
-        # self.patch_embed = nn.Parameter(
-        #     torch.randn(512, seq_length + 1, embed_dim)
-        # )
+        self.patch_embed = nn.Parameter(
+            torch.randn(1, seq_length + 1, embed_dim)
+        )
         
-    def forward(self, x, seq_size=None):
+    def forward(self, x):
         # import pdb
         # pdb.set_trace()
-        patch_size_embed = self.linear_projection(seq_size)
-        patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
-        patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
+        # patch_size_embed = self.linear_projection(seq_size)
+        # patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
+        # patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
         
         # Convert image to patches
         B = x.size(0)
@@ -309,8 +309,8 @@ class PatchSizeEmbedding(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
         
         # Add positional encoding
-        x = x + patch_size_embed
-        # x = x + self.patch_embed
+        # x = x + patch_size_embed
+        x = x + self.patch_embed
         
         return x
     
@@ -333,8 +333,8 @@ class AF_ViT(nn.Module):
         self.norm = nn.LayerNorm(embed_dim)
         self.head = nn.Linear(embed_dim, num_classes)
         
-    def forward(self, x, seq_size=None):
-        x = self.patch_embed(x, seq_size=seq_size)
+    def forward(self, x):
+        x = self.patch_embed(x)
         x = self.blocks(x)
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
         x = self.head(x)
