@@ -67,6 +67,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Forward pass, calculate loss
             with torch.cuda.amp.autocast():
                 outputs = model(seq_pos, seq_size=seq_size)
+                output = torch.nan_to_num(output, nan=0.0)
                 loss = criterion(outputs, labels)
             if torch.isnan(loss):
                 import pdb
