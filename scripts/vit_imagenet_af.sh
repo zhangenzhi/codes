@@ -22,7 +22,7 @@ module load rocm/6.2.0
 python main.py \
     --task vit_imagenet_af \
     --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet \
-    --batch_size 512 \
+    --batch_size 256 \
     --num_workers 32 \
     --num_epochs 100 \
     --seq_length 514 \

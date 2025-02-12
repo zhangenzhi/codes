@@ -65,12 +65,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
-            with torch.cuda.amp.autocast():
-                outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
-                # nan_mask = torch.isnan(outputs).any(dim=1)
-                # outputs = outputs[~nan_mask]
-                # labels = labels[~nan_mask]
-                loss = criterion(outputs, labels)
+            # with torch.cuda.amp.autocast():
+            outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
+            # nan_mask = torch.isnan(outputs).any(dim=1)
+            # outputs = outputs[~nan_mask]
+            # labels = labels[~nan_mask]
+            loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
                 import pdb
