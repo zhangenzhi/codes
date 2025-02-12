@@ -26,4 +26,4 @@ python main.py \
     --num_workers 32 \
     --num_epochs 100 \
     --seq_length 514 \
-    --savefile dep-514
+    --savefile cep-514

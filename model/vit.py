@@ -287,7 +287,7 @@ class PatchSizeEmbedding(nn.Module):
         # Create the embedding layer
         
         # self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
-        self.linear_projection = nn.Linear(1, embed_dim)
+        # self.linear_projection = nn.Linear(1, embed_dim)
 
         self.patch_embed = nn.Parameter(
             torch.randn(1, seq_length + 1, embed_dim)
