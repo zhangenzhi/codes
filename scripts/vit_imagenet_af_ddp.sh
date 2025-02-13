@@ -28,4 +28,4 @@ srun -N 8 -n 64 --ntasks-per-node 8 python main.py \
     --num_workers 32 \
     --num_epochs 100 \
     --seq_length 514 \
-    --savefile cep-514-n2
+    --savefile cep-514-n8
