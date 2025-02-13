@@ -120,27 +120,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
     logging.info('Finished Training. Best Validation Accuracy: %.4f', best_val_acc)
 
-def af_train(args):
-    local_rank = int(os.environ['SLURM_LOCALID'])
-    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
-    os.environ['MASTER_PORT'] = "29500"
-    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
-    os.environ['RANK'] = os.environ['SLURM_PROCID']
-    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
-                                                    os.environ['MASTER_PORT'], 
-                                                    os.environ['WORLD_SIZE'], 
-                                                    os.environ['RANK'],
-                                                    local_rank))
-    dist.init_process_group(                                   
-    	backend='nccl',                                         
-   		init_method='env://',                                   
-    	world_size=args.world_size,                              
-    	rank=int(os.environ['RANK'])                                               
-    )
-    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
-
-    print(f"Start running basic DDP example on rank {local_rank}.")
-    device_id = local_rank % torch.cuda.device_count()
+def af_train(args, device_id):
     
     # Create DataLoader for training and validation
     train_dir = os.path.join(args.data_dir, "train")
@@ -160,11 +140,11 @@ def af_train(args):
     # Create ViT model
     model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
     model.to(device_id)
-    model = DDP(model, device_ids=[device_id])
     save_path = os.path.join(args.output, args.savefile)
     if args.reload:
         if os.path.exists(os.path.join(save_path, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(save_path, "best_score_model.pth")))
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -177,5 +157,25 @@ def af_train(args):
 def vit_imagenet_af_ddp_train(args):
     log(args=args)
     args.world_size = int(os.environ['SLURM_NTASKS'])
-    # mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
-    af_train(args=args)
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
+    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
+    os.environ['RANK'] = os.environ['SLURM_PROCID']
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    local_rank))
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=int(os.environ['RANK'])                                               
+    )
+    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
+
+    print(f"Start running basic DDP example on rank {local_rank}.")
+    
+    device_id = local_rank % torch.cuda.device_count()
+    af_train(args=args, device_id=device_id)
