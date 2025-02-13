@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A nro108
-#SBATCH -o vit_imagenet_af.o%J
+#SBATCH -o vit_imagenet_af_ddp.o%J
 #SBATCH -t 02:00:00
 #SBATCH -N 2
 #SBATCH -p batch
