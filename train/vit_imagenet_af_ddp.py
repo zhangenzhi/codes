@@ -9,9 +9,10 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import logging
 import time
+from torch.utils.data import DataLoader
 
 # from model.vit import create_vit_model
-from dataset.imagenet import imagenet_distribute
+from dataset.imagenet_ap import ImageNetDataset
 from model.vit import AF_ViT
 
 # Configure logging
@@ -142,7 +143,19 @@ def af_train(args):
     device_id = local_rank % torch.cuda.device_count()
     
     # Create DataLoader for training and validation
-    dataloaders = imagenet_distribute(args=args)
+    train_dir = os.path.join(args.data_dir, "train")
+    val_dir = os.path.join(args.data_dir,"val")   
+    train_set = ImageNetDataset(train_dir, fixed_length=args.seq_length, patch_size=8, sths=[1,3,5,7,9])
+    val_set = ImageNetDataset(val_dir, fixed_length=args.seq_length, patch_size=8, sths=[1,3,5,7,9])
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_set)
+    val_sampler = torch.utils.data.distributed.DistributedSampler(val_set)
+    train_size = len(train_set)
+    val_size = len(val_set)
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
+    
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, sampler=train_sampler)
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, sampler=val_sampler)
+    test_loader = val_loader
 
     # Create ViT model
     model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
@@ -158,7 +171,7 @@ def af_train(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Train the model
-    train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id, save_path=save_path, seq_length=args.seq_length)
+    train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, device_id=device_id, save_path=save_path, seq_length=args.seq_length)
     dist.destroy_process_group()
 
 def vit_imagenet_af_ddp_train(args):
