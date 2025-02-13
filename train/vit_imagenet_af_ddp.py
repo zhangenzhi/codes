@@ -48,6 +48,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
         start_time = time.time()
         logging.info("Epoch %d/%d", epoch + 1, num_epochs)
         running_loss = 0.0
+        correct = 0
         for i, (image, seq_img, seq_size, seq_pos, labels) in enumerate(train_loader):
             # import pdb 
             # pdb.set_trace()
@@ -63,9 +64,6 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
             outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
-            # nan_mask = torch.isnan(outputs).any(dim=1)
-            # outputs = outputs[~nan_mask]
-            # labels = labels[~nan_mask]
             loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
@@ -75,15 +73,18 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             loss.backward()
             optimizer.step()
 
-            # Log training progress
+            # Print training progress (optional)
             running_loss += loss.item()
-            if i % 100 == 99 and device_id == 0:  # Log every 100 mini-batches
-                logging.info('[%d, %5d] loss: %.3f', epoch + 1, i + 1, running_loss / 100)
+            if i % 100 == 99:  # Print every 100 mini-batches
+                _, predicted = torch.max(outputs.data, 1)
+                correct += (predicted == labels).sum().item()
+                logging.info('[%d, %5d] train loss: %.3f train acc: %.3f' %
+                      (epoch + 1, i + 1, running_loss / 100,  100 * correct / labels.size(0)))
                 running_loss = 0.0
+                correct = 0
 
         # Validate after each epoch
         model.eval()
-                
         val_correct = 0
         val_total = 0
         val_loss = 0.0
