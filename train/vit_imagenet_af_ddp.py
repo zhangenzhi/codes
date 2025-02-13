@@ -121,7 +121,6 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     logging.info('Finished Training. Best Validation Accuracy: %.4f', best_val_acc)
 
 def af_train(args, device_id):
-    
     # Create DataLoader for training and validation
     train_dir = os.path.join(args.data_dir, "train")
     val_dir = os.path.join(args.data_dir,"val")   
@@ -152,7 +151,6 @@ def af_train(args, device_id):
 
     # Train the model
     train_model(model, train_loader, val_loader, criterion, optimizer, args.num_epochs, device_id=device_id, save_path=save_path, seq_length=args.seq_length)
-    dist.destroy_process_group()
 
 def vit_imagenet_af_ddp_train(args):
     log(args=args)
@@ -176,6 +174,7 @@ def vit_imagenet_af_ddp_train(args):
     print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
 
     print(f"Start running basic DDP example on rank {local_rank}.")
-    
     device_id = local_rank % torch.cuda.device_count()
     af_train(args=args, device_id=device_id)
+    
+    dist.destroy_process_group()
