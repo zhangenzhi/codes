@@ -22,7 +22,7 @@ module load rocm/6.2.0
 srun -N 2 -n 16 --ntasks-per-node 8 python main.py \
     --task vit_imagenet_af_ddp \
     --data_dir /lustre/orion/nro108/world-shared/enzhi/dataset/imagenet \
-    --batch_size 256 \
+    --batch_size 128 \
     --num_workers 32 \
     --num_epochs 100 \
     --seq_length 514 \
