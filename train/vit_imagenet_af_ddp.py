@@ -23,7 +23,7 @@ def log(args):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device_id, save_path=save_path, seq_length=args.seq_length):
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device_id, save_path, seq_length):
     """
     Trains the ViT model on the ImageNet dataset with validation.
 
