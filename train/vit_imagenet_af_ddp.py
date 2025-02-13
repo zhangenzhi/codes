@@ -8,6 +8,7 @@ import torch.multiprocessing as mp
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import logging
+import time
 
 # from model.vit import create_vit_model
 from dataset.imagenet import imagenet_distribute
@@ -21,35 +22,6 @@ def log(args):
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-
-def create_vit_model(pretrained, num_classes=1000):
-    """
-    Creates a ViT model for ImageNet classification.
-
-    Args:
-        pretrained (bool): If True, loads pre-trained weights. Defaults to False.
-        num_classes (int, optional): Number of output classes (defaults to 1000 for ImageNet). Defaults to 1000.
-
-    Returns:
-        nn.Module: The created ViT model.
-    """
-    if pretrained:
-        # Fine-tune a pre-trained model (freeze early layers if desired)
-        model = timm.create_model("vit_base_patch16_224", pretrained=True)
-        for param in model.parameters():
-            param.requires_grad = False  # Optionally freeze early layers
-
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-    else:
-        # Create a ViT model with randomly initialized weights
-        model = timm.create_model("vit_base_patch16_224", pretrained=False)
-        # Modify the final classification head
-        in_features = model.head.in_features
-        model.head = nn.Linear(in_features, num_classes)
-
-    return model
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device_id, save_path=save_path, seq_length=args.seq_length):
     """
@@ -72,6 +44,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     logging.info("Training the ViT model for %d epochs...", num_epochs)
 
     for epoch in range(num_epochs):
+        start_time = time.time()
         logging.info("Epoch %d/%d", epoch + 1, num_epochs)
         running_loss = 0.0
         for i, (image, seq_img, seq_size, seq_pos, labels) in enumerate(train_loader):
@@ -87,12 +60,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
-            with torch.cuda.amp.autocast():
-                outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
-                # nan_mask = torch.isnan(outputs).any(dim=1)
-                # outputs = outputs[~nan_mask]
-                # labels = labels[~nan_mask]
-                loss = criterion(outputs, labels)
+            # with torch.cuda.amp.autocast():
+            outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
+            # nan_mask = torch.isnan(outputs).any(dim=1)
+            # outputs = outputs[~nan_mask]
+            # labels = labels[~nan_mask]
+            loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
                 import pdb
@@ -109,45 +82,44 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
         # Validate after each epoch
         model.eval()
-        val_acc = evaluate_model(model, val_loader, device_id)
-        logging.info("Epoch: %d, Validation Accuracy: %.4f", epoch + 1, val_acc)
+                
+        val_correct = 0
+        val_total = 0
+        val_loss = 0.0
+        num_iter = 0
+        with torch.no_grad():
+            for image, seq_img, seq_size, seq_pos, labels in val_loader:
+                seq_img = seq_img.to(device_id, non_blocking=True)
+                seq_img = seq_img.view(-1, seq_length, 8*8*3) 
+                # images = torch.reshape(images,shape=(-1,3,224, 224))
+                labels = labels.to(device_id, non_blocking=True)
+                seq_pos = seq_pos.to(device_id, non_blocking=True)
+                seq_size = seq_size.view(-1, seq_length, 1)
+                seq_size = seq_size.to(device_id, non_blocking=True)
+                
+                outputs = model(torch.cat([seq_pos, seq_size], dim=-1))
+                loss = criterion(outputs, labels)
+                    
+                num_iter += 1
+                val_loss += loss.item()
+                _, predicted = torch.max(outputs.data, 1)
+                val_total += labels.size(0)
+                val_correct += (predicted == labels).sum().item()
+        val_loss /= num_iter
+        val_acc = 100 * val_correct / val_total
+        logging.info("Val_Acc: {:.4f},Val_Loss: {:.4f}, Time Cost:{}".format(val_acc, val_loss, time.time()-start_time))
 
         # Save the best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             torch.save(model.state_dict(), os.path.join(save_path, "best_score_model.pth"))
+            
+        logging.info('Finished Training Step %d' % (epoch + 1))
 
-        logging.info('Finished Training Step %d', epoch + 1)
 
     logging.info('Finished Training. Best Validation Accuracy: %.4f', best_val_acc)
 
-def evaluate_model(model, val_loader, device_id):
-    """
-    Evaluates the model on the validation set.
-
-    Args:
-        model (nn.Module): The trained model.
-        val_loader (DataLoader): The DataLoader for the validation data.
-        device_id (int): The GPU device ID.
-
-    Returns:
-        float: The accuracy of the model on the validation set.
-    """
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for images, labels in val_loader:
-            images = images.to(device_id, non_blocking=True)
-            labels = labels.to(device_id, non_blocking=True)
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    accuracy = 100 * correct / total
-    return accuracy
-
-def vit_train(args):
+def af_train(args):
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
@@ -189,8 +161,8 @@ def vit_train(args):
     train_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id, save_path=save_path, seq_length=args.seq_length)
     dist.destroy_process_group()
 
-def vit_ddp(args):
+def vit_imagenet_af_ddp_train(args):
     log(args=args)
     args.world_size = int(os.environ['SLURM_NTASKS'])
     # mp.spawn(vit_train, nprocs=args.gpus, args=(args,))
-    vit_train(args=args)
+    af_train(args=args)

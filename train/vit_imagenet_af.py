@@ -67,9 +67,6 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
             outputs = model(torch.cat([seq_pos, seq_size],dim=-1))
-            # nan_mask = torch.isnan(outputs).any(dim=1)
-            # outputs = outputs[~nan_mask]
-            # labels = labels[~nan_mask]
             loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
@@ -109,13 +106,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 seq_size = seq_size.view(-1, seq_length, 1)
                 seq_size = seq_size.to(device, non_blocking=True)
                 
-                with torch.cuda.amp.autocast():
-                    try:
-                        outputs = model(torch.cat([seq_pos, seq_size], dim=-1))
-                    except:
-                        import pdb
-                        pdb.set_trace()
-                    loss = criterion(outputs, labels)
+                outputs = model(torch.cat([seq_pos, seq_size], dim=-1))
+                loss = criterion(outputs, labels)
                     
                 num_iter += 1
                 val_loss += loss.item()
