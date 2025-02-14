@@ -140,12 +140,12 @@ def af_train(args, device_id):
     # Create ViT model
     model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
     model.to(device_id)
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
+
     save_path = os.path.join(args.output, args.savefile)
     if args.reload:
         if os.path.exists(os.path.join(save_path, "best_score_model.pth")):
             model.load_state_dict(torch.load(os.path.join(save_path, "best_score_model.pth")))
-    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
-
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
