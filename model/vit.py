@@ -279,7 +279,7 @@ class PatchSizeEmbedding(nn.Module):
         self.seq_length = seq_length
         
         self.projection = nn.Linear(
-            3,
+            195,
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
