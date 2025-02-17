@@ -54,6 +54,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # pdb.set_trace()
             seq_img = seq_img.to(device_id, non_blocking=True)
             seq_img = seq_img.view(-1, seq_length, 8*8*3) 
+            seq_img = seq_img[:, :, :64]
             seq_pos = seq_pos.to(device_id, non_blocking=True)
             seq_size = seq_size.view(-1, seq_length, 1)
             seq_size = seq_size.to(device_id, non_blocking=True)
@@ -63,7 +64,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
-            outputs = model(torch.cat([seq_img, seq_pos, seq_size],dim=-1))
+            outputs = model(torch.cat([seq_img],dim=-1))
             loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
@@ -93,13 +94,14 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             for image, seq_img, seq_size, seq_pos, labels in val_loader:
                 seq_img = seq_img.to(device_id, non_blocking=True)
                 seq_img = seq_img.view(-1, seq_length, 8*8*3) 
+                seq_img = seq_img[:, :, :64]
                 # images = torch.reshape(images,shape=(-1,3,224, 224))
                 labels = labels.to(device_id, non_blocking=True)
                 seq_pos = seq_pos.to(device_id, non_blocking=True)
                 seq_size = seq_size.view(-1, seq_length, 1)
                 seq_size = seq_size.to(device_id, non_blocking=True)
                 
-                outputs = model(torch.cat([seq_img, seq_pos, seq_size], dim=-1))
+                outputs = model(torch.cat([seq_img], dim=-1))
                 loss = criterion(outputs, labels)
                     
                 num_iter += 1

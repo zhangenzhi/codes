@@ -272,34 +272,25 @@ class VisionTransformer2DPos(nn.Module):
         return x
 
 class PatchSizeEmbedding(nn.Module):
-    def __init__(self, num_embeddings, embed_dim, seq_length):
+    def __init__(self, patch_size, embed_dim, seq_length):
         super().__init__()
         
         self.embed_dim = embed_dim
         self.seq_length = seq_length
         
         self.projection = nn.Linear(
-            195,
+            patch_size*patch_size,
             embed_dim,
         )
-        self.cls_token = nn.Parameter(torch.randn(1, 1, embed_dim))
-        # self.emb_padding = nn.Parameter(torch.randn(1, 1, embed_dim))
-        # Create the embedding layer
-        
-        # self.embedding_layer = nn.Embedding(num_embeddings=num_embeddings, embedding_dim=embed_dim)
-        # self.linear_projection = nn.Linear(1, embed_dim)
+        self.cls_token = nn.Parameter(torch.randn(1, 1, self.embed_dim))
 
+        # Create the embedding layer
         self.patch_embed = nn.Parameter(
-            torch.randn(1, seq_length + 1, embed_dim)
+            torch.randn(1, self.seq_length + 1, self.embed_dim)
         )
         
     def forward(self, x):
-        # import pdb
-        # pdb.set_trace()
-        # patch_size_embed = self.linear_projection(seq_size)
-        # patch_pos_embed = torch.zeros(1, 1, self.embed_dim, device=self.cls_token.device)  
-        # patch_size_embed = torch.cat([patch_pos_embed.expand(patch_size_embed.size(0), -1, -1), patch_size_embed], dim=1)
-        
+         
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
@@ -309,7 +300,6 @@ class PatchSizeEmbedding(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)  # Shape: [B, N+1, embed_dim]
         
         # Add positional encoding
-        # x = x + patch_size_embed
         x = x + self.patch_embed
         
         return x
@@ -323,10 +313,10 @@ class AF_ViT(nn.Module):
         num_heads=12,
         mlp_dim=3072,
         dropout=0.1,
-        seq_length=None,
+        seq_length=514,
     ):
         super().__init__()
-        self.patch_embed = PatchSizeEmbedding(num_embeddings=16, embed_dim=embed_dim, seq_length=seq_length)
+        self.patch_embed = PatchSizeEmbedding(patch_size=8, embed_dim=embed_dim, seq_length=seq_length)
         self.blocks = nn.Sequential(
             *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
         )

@@ -27,5 +27,5 @@ srun -N 16 -n 128 --ntasks-per-node 8 python main.py \
     --batch_size 64 \
     --num_workers 32 \
     --num_epochs 100 \
-    --seq_length 514 \
-    --savefile all-514-n16
+    --seq_length 8194 \
+    --savefile seq-8194-n16
