@@ -64,7 +64,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             
             # Forward pass, calculate loss
             # with torch.cuda.amp.autocast():
-            outputs = model(torch.cat([seq_img],dim=-1))
+            # outputs = model(torch.cat([seq_img],dim=-1))
+            outputs = model(seq_img)
             loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
@@ -101,7 +102,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 seq_size = seq_size.view(-1, seq_length, 1)
                 seq_size = seq_size.to(device_id, non_blocking=True)
                 
-                outputs = model(torch.cat([seq_img], dim=-1))
+                # outputs = model(torch.cat([seq_img], dim=-1))
+                outputs = model(seq_img)
                 loss = criterion(outputs, labels)
                     
                 num_iter += 1
