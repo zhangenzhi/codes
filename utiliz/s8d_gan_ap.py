@@ -35,15 +35,20 @@ class S8DGANAP(Dataset):
         np_label = np.array(label, dtype=np.float32)  # Convert to NumPy array (float32)
         
         # Clean and normalize image data
-        np_image[np.isinf(np_image)] = np.nan  # Replace inf with NaN
-        np_image = np.nan_to_num(np_image, nan=np_image.min())  # Replace NaN with min value
-        
-        np_label[np.isinf(np_label)] = np.nan  # Replace inf with NaN
-        np_label = np.nan_to_num(np_label, nan=np_label.min())  # Replace NaN with min value
+        np_image[np.isinf(np_image) | np.isnan(np_image)] = np.nanmin(np_image)  # Replace NaN/Inf with min value
+        np_label[np.isinf(np_label) | np.isnan(np_label)] = np.nanmin(np_label)
+
+        # Normalize to [0, 255]
+        np_image = (np_image - np_image.min()) / (np_image.max() - np_image.min()) * 255
+        np_label = (np_label - np_label.min()) / (np_label.max() - np_label.min()) * 255
+
+        # Convert to uint8 safely
+        np_image = np.clip(np_image, 0, 255).astype(np.uint8)
+        np_label = np.clip(np_label, 0, 255).astype(np.uint8)
        
         if self.transform:
-            image = self.transform(Image.fromarray(np_image.astype(np.uint8)))
-            label = transforms.ToTensor()(Image.fromarray(np_label.astype(np.uint8)))  # Convert label to tensor
+            image = self.transform(Image.fromarray(np_image))
+            label = transforms.ToTensor()(Image.fromarray(np_label))l to tensor
         
         
         return image, label
