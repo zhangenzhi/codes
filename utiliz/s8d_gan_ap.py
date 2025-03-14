@@ -6,7 +6,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 import tifffile as tiff
 
-class S8DGANAP(Dataset):
+class S8DGAN(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.transform = transforms.Compose([
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
     
-    dataset = S8DGANAP(root_dir)
+    dataset = S8DGAN(root_dir)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=32)
 
     # Example of iterating through the DataLoader
