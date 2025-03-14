@@ -76,16 +76,9 @@ if __name__ == "__main__":
     last_images_np = last_images.squeeze().numpy()
     last_labels_np = last_labels.squeeze().numpy()
 
-    # Clean and normalize image values
-    last_images_np[np.isinf(last_images_np)] = np.nan  # Replace inf with NaN
-    last_images_np = np.nan_to_num(last_images_np, nan=last_images_np.min())  # Replace NaN with min value
-
-    last_labels_np[np.isinf(last_labels_np)] = np.nan  # Replace inf with NaN
-    last_labels_np = np.nan_to_num(last_labels_np, nan=last_labels_np.min())  # Replace NaN with min value
-
     # Normalize and convert to uint8
-    last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
-    last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
+    last_images_np = (last_images_np * 255).astype(np.uint8)
+    last_labels_np =(last_images_np * 255).astype(np.uint8)
 
     output_dir = "saved_slices"
     os.makedirs(output_dir, exist_ok=True)
