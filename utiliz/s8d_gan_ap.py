@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
     dataset = S8DGANAP(root_dir)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=64)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=32)
 
     # Example of iterating through the DataLoader
     import time
@@ -59,6 +59,10 @@ if __name__ == "__main__":
     # Save the last batch of images and labels as grayscale slices
     last_images_np = img.squeeze().numpy()  # Remove batch dimension
     last_labels_np = mask.squeeze().numpy()
+
+    # Normalize and convert to uint8
+    last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
+    last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
 
     output_dir = "saved_slices"
     os.makedirs(output_dir, exist_ok=True)
