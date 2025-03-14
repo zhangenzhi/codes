@@ -6,25 +6,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 import tifffile as tiff
 
-# class TIFFDataset(Dataset):
-#     def __init__(self, root_dir):
-#         self.root_dir = root_dir
-#         self.image_dir = os.path.join(root_dir,"FBP")
-#         self.transform = transforms.Compose([
-#             transforms.ToTensor(),
-#         ])
-#         self.image_files = [f for f in os.listdir(root_dir) if f.endswith('.tiff')]
-
-#     def __len__(self):
-#         return len(self.image_files)
-
-#     def __getitem__(self, idx):
-#         img_path = os.path.join(self.root_dir, self.image_files[idx])
-#         img = tiff.imread(img_path)
-        
-#         return img
-
-class TIFFDataset(Dataset):
+class S8DGANAP(Dataset):
     def __init__(self, root_dir):
         self.root_dir = root_dir
         self.transform = transforms.Compose([
@@ -64,7 +46,7 @@ if __name__ == "__main__":
     root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um"  # Change this to your directory
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
-    dataset = TIFFDataset(root_dir)
+    dataset = S8DGANAP(root_dir)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=32)
 
     # Example of iterating through the DataLoader
