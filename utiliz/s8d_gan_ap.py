@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
     dataset = S8DGANAP(root_dir)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=-1)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=32)
 
     # Example of iterating through the DataLoader
     import time
