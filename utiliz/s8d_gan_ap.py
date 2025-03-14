@@ -69,7 +69,7 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     for (last_images, last_labels) in dataloader:
-        print(last_images.shape, last_labels.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
+        print(last_images.shape, last_images.mean(), last_labels.shape, last_labels.mean())  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
     
     # Save the last batch of images and labels as grayscale slices
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     # Normalize and convert to uint8
     last_images_np = (last_images_np * 255).astype(np.uint8)
-    last_labels_np =(last_images_np * 255).astype(np.uint8)
+    last_labels_np =(last_labels_np * 255).astype(np.uint8)
 
     output_dir = "saved_slices"
     os.makedirs(output_dir, exist_ok=True)
