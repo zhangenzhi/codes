@@ -26,8 +26,10 @@ class TIFFDataset(Dataset):
 
 if __name__ == "__main__":
     # Define dataset and dataloader
-    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/FBP"  # Change this to your directory
-    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um/FBP"  # Change this to your directory
+    # Time cost:0.5032467756952558, total samples 111
+    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/FBP"  # Change this to your directory
+    # Time cost:0.5032467756952558, total samples 111
+    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um/FBP"  # Change this to your directory
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF/FBP"
     dataset = TIFFDataset(root_dir)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=32)
