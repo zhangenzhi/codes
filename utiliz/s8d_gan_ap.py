@@ -31,7 +31,7 @@ class TIFFDataset(Dataset):
             transforms.ToTensor(),
         ])
         
-        self.pdb_dir = os.path.join(root_dir, "PDB")
+        self.pdb_dir = os.path.join(root_dir, "FBP")
         self.labels_dir = os.path.join(root_dir, "labels")
         
         self.image_files = [f for f in os.listdir(self.pdb_dir) if f.endswith('.tiff')]
