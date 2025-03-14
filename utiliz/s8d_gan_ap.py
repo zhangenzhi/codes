@@ -61,9 +61,9 @@ if __name__ == "__main__":
     # Time cost:0.5032467756952558, total samples 111, torch.Size([4, 768, 768, 768])
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um"  # Change this to your directory
     # Time cost:0.8656143597194127, total samples 140, torch.Size([4, 768, 768, 768])
-    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um"  # Change this to your directory
+    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um"  # Change this to your directory
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
-    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
+    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
     dataset = TIFFDataset(root_dir)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=32)
 
