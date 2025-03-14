@@ -27,6 +27,8 @@ class TIFFDataset(Dataset):
 if __name__ == "__main__":
     # Define dataset and dataloader
     root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/FBP"  # Change this to your directory
+    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um/FBP"  # Change this to your directory
+    # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF/FBP"
     dataset = TIFFDataset(root_dir)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=32)
 
@@ -35,4 +37,4 @@ if __name__ == "__main__":
     start_time = time.time()
     for batch in dataloader:
         print(batch.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
-    end_time = (time.time() - start_time)/len(dataloader)
+    print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
