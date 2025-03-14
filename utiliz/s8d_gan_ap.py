@@ -48,7 +48,7 @@ class S8DGANAP(Dataset):
        
         if self.transform:
             image = self.transform(Image.fromarray(np_image))
-            label = transforms.ToTensor()(Image.fromarray(np_label))l to tensor
+            label = transforms.ToTensor()(Image.fromarray(np_label))
         
         
         return image, label
