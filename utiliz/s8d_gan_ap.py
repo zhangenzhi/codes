@@ -55,3 +55,16 @@ if __name__ == "__main__":
     for (img, mask) in dataloader:
         print(img.shape, mask.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
+    
+    # Save the last batch of images and labels as grayscale slices
+    last_images_np = img.squeeze().numpy()  # Remove batch dimension
+    last_labels_np = mask.squeeze().numpy()
+
+    output_dir = "saved_slices"
+    os.makedirs(output_dir, exist_ok=True)
+
+    for i in range(last_images_np.shape[0]):
+        Image.fromarray(last_images_np[i]).convert('L').save(os.path.join(output_dir, f"image_slice_{i}.png"))
+        Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
+
+    print(f"Saved grayscale slices in {output_dir}")
