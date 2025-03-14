@@ -31,9 +31,21 @@ class S8DGANAP(Dataset):
         image =  tiff.imread(img_path)  # May need to Convert to RGB if needed
         label =  tiff.imread(label_path)  # May need to Convert to grayscale
         
+        np_image = np.array(image, dtype=np.float32)  # Convert to NumPy array (float32)
+        np_label = np.array(label, dtype=np.float32)  # Convert to NumPy array (float32)
+        
+        # Clean and normalize image data
+        np_image[np.isinf(np_image)] = np.nan  # Replace inf with NaN
+        np_image = np.nan_to_num(np_image, nan=np_image.min())  # Replace NaN with min value
+        
+        np_label[np.isinf(np_label)] = np.nan  # Replace inf with NaN
+        np_label = np.nan_to_num(np_label, nan=np_label.min())  # Replace NaN with min value
+       
+        
         if self.transform:
-            image = self.transform(image)
-            label = transforms.ToTensor()(label)  # Convert label to tensor
+            image = self.transform(Image.fromarray(np_image.astype(np.uint8)))
+            label = transforms.ToTensor()(Image.fromarray(np_label.astype(np.uint8)))  # Convert label to tensor
+        
         
         return image, label
     
@@ -46,6 +58,7 @@ if __name__ == "__main__":
     root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um"  # Change this to your directory
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
+    
     dataset = S8DGANAP(root_dir)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=32)
 
@@ -73,3 +86,9 @@ if __name__ == "__main__":
     #     Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
 
     # print(f"Saved grayscale slices in {output_dir}")
+    
+# img
+# (Pdb) img.min()
+# tensor(2426., dtype=torch.float16)
+# (Pdb) img.max()
+# tensor(inf, dtype=torch.float16)
