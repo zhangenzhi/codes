@@ -47,28 +47,29 @@ if __name__ == "__main__":
     # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF"
     dataset = S8DGANAP(root_dir)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=32)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=64)
 
     # Example of iterating through the DataLoader
     import time
     start_time = time.time()
     for (img, mask) in dataloader:
+        import pdb;pdb.set_trace()
         print(img.shape, mask.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
     
-    # Save the last batch of images and labels as grayscale slices
-    last_images_np = img.squeeze().numpy()  # Remove batch dimension
-    last_labels_np = mask.squeeze().numpy()
+    # # Save the last batch of images and labels as grayscale slices
+    # last_images_np = img.squeeze().numpy()  # Remove batch dimension
+    # last_labels_np = mask.squeeze().numpy()
 
-    # Normalize and convert to uint8
-    last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
-    last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
+    # # Normalize and convert to uint8
+    # last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
+    # last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
 
-    output_dir = "saved_slices"
-    os.makedirs(output_dir, exist_ok=True)
+    # output_dir = "saved_slices"
+    # os.makedirs(output_dir, exist_ok=True)
 
-    for i in range(last_images_np.shape[0]):
-        Image.fromarray(last_images_np[i]).convert('L').save(os.path.join(output_dir, f"image_slice_{i}.png"))
-        Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
+    # for i in range(last_images_np.shape[0]):
+    #     Image.fromarray(last_images_np[i]).convert('L').save(os.path.join(output_dir, f"image_slice_{i}.png"))
+    #     Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
 
-    print(f"Saved grayscale slices in {output_dir}")
+    # print(f"Saved grayscale slices in {output_dir}")
