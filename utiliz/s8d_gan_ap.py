@@ -41,7 +41,6 @@ class S8DGANAP(Dataset):
         np_label[np.isinf(np_label)] = np.nan  # Replace inf with NaN
         np_label = np.nan_to_num(np_label, nan=np_label.min())  # Replace NaN with min value
        
-        
         if self.transform:
             image = self.transform(Image.fromarray(np_image.astype(np.uint8)))
             label = transforms.ToTensor()(Image.fromarray(np_label.astype(np.uint8)))  # Convert label to tensor
@@ -65,27 +64,34 @@ if __name__ == "__main__":
     # Example of iterating through the DataLoader
     import time
     start_time = time.time()
-    for (img, mask) in dataloader:
+    for (last_images, last_labels) in dataloader:
         import pdb;pdb.set_trace()
-        print(img.shape, mask.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
+        print(last_images.shape, last_labels.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
     
-    # # Save the last batch of images and labels as grayscale slices
-    # last_images_np = img.squeeze().numpy()  # Remove batch dimension
-    # last_labels_np = mask.squeeze().numpy()
+    # Save the last batch of images and labels as grayscale slices
+    last_images_np = last_images.squeeze().numpy()
+    last_labels_np = last_labels.squeeze().numpy()
 
-    # # Normalize and convert to uint8
-    # last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
-    # last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
+    # Clean and normalize image values
+    last_images_np[np.isinf(last_images_np)] = np.nan  # Replace inf with NaN
+    last_images_np = np.nan_to_num(last_images_np, nan=last_images_np.min())  # Replace NaN with min value
 
-    # output_dir = "saved_slices"
-    # os.makedirs(output_dir, exist_ok=True)
+    last_labels_np[np.isinf(last_labels_np)] = np.nan  # Replace inf with NaN
+    last_labels_np = np.nan_to_num(last_labels_np, nan=last_labels_np.min())  # Replace NaN with min value
 
-    # for i in range(last_images_np.shape[0]):
-    #     Image.fromarray(last_images_np[i]).convert('L').save(os.path.join(output_dir, f"image_slice_{i}.png"))
-    #     Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
+    # Normalize and convert to uint8
+    last_images_np = ((last_images_np - last_images_np.min()) / (last_images_np.max() - last_images_np.min()) * 255).astype(np.uint8)
+    last_labels_np = ((last_labels_np - last_labels_np.min()) / (last_labels_np.max() - last_labels_np.min()) * 255).astype(np.uint8)
 
-    # print(f"Saved grayscale slices in {output_dir}")
+    output_dir = "saved_slices"
+    os.makedirs(output_dir, exist_ok=True)
+
+    for i in range(last_images_np.shape[0]):
+        Image.fromarray(last_images_np[i]).convert('L').save(os.path.join(output_dir, f"image_slice_{i}.png"))
+        Image.fromarray(last_labels_np[i]).convert('L').save(os.path.join(output_dir, f"label_slice_{i}.png"))
+
+    print(f"Saved grayscale slices in {output_dir}")
     
 # img
 # (Pdb) img.min()
