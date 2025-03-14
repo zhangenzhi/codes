@@ -31,7 +31,9 @@ transform = transforms.Compose([
 
 if __name__ == "__main__":
     # Define dataset and dataloader
-    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/"  # Change this to your directory
+    root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/FBP"  # Change this to your directory
+    import pdb;pdb.set_trace()
+    
     image_files = [f for f in os.listdir(root_dir) if f.endswith('.tiff')]
     idx = 0
     img_path = os.path.join(root_dir, image_files[idx])
