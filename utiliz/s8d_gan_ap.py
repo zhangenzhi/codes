@@ -50,7 +50,6 @@ class S8DGANAP(Dataset):
             image = self.transform(np_image)
             label = transforms.ToTensor()(np_label)
         
-        
         return image, label
     
 
@@ -70,7 +69,6 @@ if __name__ == "__main__":
     import time
     start_time = time.time()
     for (last_images, last_labels) in dataloader:
-        import pdb;pdb.set_trace()
         print(last_images.shape, last_labels.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
     
