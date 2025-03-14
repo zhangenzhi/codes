@@ -6,23 +6,55 @@ from PIL import Image
 import torchvision.transforms as transforms
 import tifffile as tiff
 
+# class TIFFDataset(Dataset):
+#     def __init__(self, root_dir):
+#         self.root_dir = root_dir
+#         self.image_dir = os.path.join(root_dir,"FBP")
+#         self.transform = transforms.Compose([
+#             transforms.ToTensor(),
+#         ])
+#         self.image_files = [f for f in os.listdir(root_dir) if f.endswith('.tiff')]
+
+#     def __len__(self):
+#         return len(self.image_files)
+
+#     def __getitem__(self, idx):
+#         img_path = os.path.join(self.root_dir, self.image_files[idx])
+#         img = tiff.imread(img_path)
+        
+#         return img
+
 class TIFFDataset(Dataset):
-    def __init__(self, root_dir, transform=None):
+    def __init__(self, root_dir):
         self.root_dir = root_dir
         self.transform = transforms.Compose([
             transforms.ToTensor(),
         ])
-        self.image_files = [f for f in os.listdir(root_dir) if f.endswith('.tiff')]
+        
+        self.pdb_dir = os.path.join(root_dir, "PDB")
+        self.labels_dir = os.path.join(root_dir, "labels")
+        
+        self.image_files = [f for f in os.listdir(self.pdb_dir) if f.endswith('.tiff')]
 
     def __len__(self):
         return len(self.image_files)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.root_dir, self.image_files[idx])
-        img = tiff.imread(img_path)
+        image_name = self.image_files[idx]
+        label_name = image_name.replace("reconFBPsimul", "label")
         
-        return img
-
+        img_path = os.path.join(self.pdb_dir, image_name)
+        label_path = os.path.join(self.labels_dir, label_name)
+        
+        image =  tiff.imread(img_path)  # May need to Convert to RGB if needed
+        label =  tiff.imread(label_path)  # May need to Convert to grayscale
+        
+        if self.transform:
+            image = self.transform(image)
+            label = transforms.ToTensor()(label)  # Convert label to tensor
+        
+        return image, label
+    
 
 if __name__ == "__main__":
     # Define dataset and dataloader
@@ -30,6 +62,7 @@ if __name__ == "__main__":
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.5_900views_detector800x800_12um/FBP"  # Change this to your directory
     # Time cost:0.8656143597194127, total samples 140, torch.Size([4, 768, 768, 768])
     # root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/Noisy0.35_300views_detector1200x1200_12um/FBP"  # Change this to your directory
+    # Time cost:0.9388706513813564, total samples 56, torch.Size([4, 768, 768, 768]) 768*16x768*16x3 ?
     root_dir = "/lustre/orion/mat268/world-shared/RIKEN/simulation_XCT/high_packingFactor/Noisy0.35_300views_detector1200x1200_12um_HPF/FBP"
     dataset = TIFFDataset(root_dir)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=32)
@@ -37,6 +70,6 @@ if __name__ == "__main__":
     # Example of iterating through the DataLoader
     import time
     start_time = time.time()
-    for batch in dataloader:
-        print(batch.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
+    for (img, mask) in dataloader:
+        print(img.shape, mask.shape)  # Should print torch.Size([4, 3, 256, 256]) if batch_size=4
     print(f"Time cost:{(time.time() - start_time)/len(dataloader)}, total samples {len(dataset)}")
