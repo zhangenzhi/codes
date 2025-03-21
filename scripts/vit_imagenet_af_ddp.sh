@@ -11,12 +11,6 @@ export MIOPEN_DISABLE_CACHE=1
 export MIOPEN_CUSTOM_CACHE_DIR='pwd' 
 export HOME="/tmp/srun"
 
-# export PATH="/lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/bin:$PATH"
-
-# set +x
-# source /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/etc/profile.d/conda.sh
-# conda activate /lustre/orion/bif146/world-shared/gvit/dataset/miniconda_frontier/envs/gvit
-
 module load PrgEnv-gnu
 module load gcc-native/12.3
 module load rocm/6.2.0
