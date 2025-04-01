@@ -149,15 +149,13 @@ if __name__ == "__main__":
     # # S8D  usage
     # dataset = Spring8Dataset(args.data_dir, args.resolution)
     # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
-
-    # # Now you can iterate over the dataloader to get batches of images and masks
-    # for batch in dataloader:
-    #     images = batch
-    #     print(images.shape)
     
-    # S8DAP  usage
-    dataset = Spring8DatasetAP(args.data_dir, args.resolution)
+    dataset = S8DGanAP(args.data_dir, args.resolution)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    
+    # # S8DAP  usage
+    # dataset = Spring8DatasetAP(args.data_dir, args.resolution)
+    # dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
     # Now you can iterate over the dataloader to get batches of images and masks
     for batch in dataloader:
