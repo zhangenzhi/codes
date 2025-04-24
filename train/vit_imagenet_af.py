@@ -151,7 +151,7 @@ def vit_af_train(args):
     
     # Create ViT model
     # model = create_vit_model(args.pretrained)
-    model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
+    model = AF_ViT(num_classes=1000, seq_length=args.seq_length,in_chan=8*8*3)
     model = nn.DataParallel(model)
     model = model.to(device)
     save_path = os.path.join(args.output, args.savefile)

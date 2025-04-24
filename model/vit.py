@@ -241,18 +241,18 @@ class VisionTransformer(nn.Module):
         return x
 
 class PatchSizeEmbedding(nn.Module):
-    def __init__(self, patch_size, embed_dim, seq_length):
+    def __init__(self, in_chan, embed_dim, seq_length):
         super().__init__()
         
         self.embed_dim = embed_dim
         self.seq_length = seq_length
         
         self.projection = nn.Linear(
-            patch_size*patch_size,
+            in_chan,
             embed_dim,
         )
         self.cls_token = nn.Parameter(torch.randn(1, 1, self.embed_dim))
-
+        self.norm_layer = nn.LayerNorm(embed_dim)
         # Create the embedding layer
         self.patch_embed = nn.Parameter(
             torch.randn(1, self.seq_length + 1, self.embed_dim)
@@ -263,6 +263,7 @@ class PatchSizeEmbedding(nn.Module):
         # Convert image to patches
         B = x.size(0)
         x = self.projection(x)  # Shape: [B, embed_dim, H', W']
+        x = self.norm_layer(x)
         
         # Add [CLS] token
         cls_tokens = self.cls_token.expand(B, -1, -1)  # Shape: [B, 1, embed_dim]
@@ -283,9 +284,10 @@ class AF_ViT(nn.Module):
         mlp_dim=3072,
         dropout=0.1,
         seq_length=514,
+        in_chan=196
     ):
         super().__init__()
-        self.patch_embed = PatchSizeEmbedding(patch_size=8, embed_dim=embed_dim, seq_length=seq_length)
+        self.patch_embed = PatchSizeEmbedding(in_chan=in_chan, embed_dim=embed_dim, seq_length=seq_length)
         self.blocks = nn.Sequential(
             *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
         )
