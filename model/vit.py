@@ -239,37 +239,6 @@ class VisionTransformer(nn.Module):
         x = self.norm(x[:, 0])  # Use the [CLS] token for classification
         x = self.head(x)
         return x
-    
-class VisionTransformer2DPos(nn.Module):
-    def __init__(
-        self,
-        img_size=224,
-        patch_size=16,
-        in_channels=3,
-        num_classes=1000,
-        embed_dim=768,
-        depth=12,
-        num_heads=12,
-        mlp_dim=3072,
-        dropout=0.1,
-        seq_length=None,
-    ):
-        super().__init__()
-        self.patch_embed = PatchEmbedding(img_size, patch_size, in_channels, embed_dim, seq_length=seq_length)
-        self.blocks = nn.Sequential(
-            *[TransformerBlock(embed_dim, num_heads, mlp_dim, dropout) for _ in range(depth)]
-        )
-        self.norm = nn.LayerNorm(embed_dim)
-        self.head = nn.Linear(embed_dim, num_classes)
-        
-    def forward(self, x, coordinates=None):
-        # import pdb
-        # pdb.set_trace()
-        x = self.patch_embed(x, coordinates=coordinates)
-        x = self.blocks(x)
-        x = self.norm(x[:, 0])  # Use the [CLS] token for classification
-        x = self.head(x)
-        return x
 
 class PatchSizeEmbedding(nn.Module):
     def __init__(self, patch_size, embed_dim, seq_length):
