@@ -102,8 +102,10 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 seq_size = seq_size.view(-1, seq_length, 1)
                 seq_size = seq_size.to(device_id, non_blocking=True)
                 
-                # outputs = model(torch.cat([seq_img], dim=-1))
-                outputs = model(seq_img)
+                seq_pos_dep = torch.cat([seq_pos, seq_size], dim=-1)
+                seq_img_pos =  torch.cat([seq_img, seq_pos_dep], dim=-1)
+                # import pdb;pdb.set_trace()
+                outputs = model(seq_img_pos)
                 loss = criterion(outputs, labels)
                     
                 num_iter += 1
@@ -142,7 +144,7 @@ def af_train(args, device_id):
     test_loader = val_loader
 
     # Create ViT model
-    model = AF_ViT(num_classes=1000, seq_length=args.seq_length)
+    model = AF_ViT(num_classes=1000, seq_length=args.seq_length, in_chan=8*8*3+3)
     model.to(device_id)
     model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
 
