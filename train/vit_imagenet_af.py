@@ -73,8 +73,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             loss = criterion(outputs, labels)
                 
             if torch.isnan(loss):
-                import pdb
-                pdb.set_trace()
+                # import pdb;pdb.set_trace()
+                print()
                 
             # Backward pass and optimize
             scaler.scale(loss).backward()
