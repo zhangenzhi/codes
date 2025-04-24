@@ -68,6 +68,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
             # with torch.cuda.amp.autocast():
             seq_pos_dep = torch.cat([seq_pos, seq_size], dim=-1)
             seq_img_pos =  torch.cat([seq_img, seq_pos_dep], dim=-1)
+            import pdb;pdb.set_trace()
             outputs = model(seq_img_pos)
             loss = criterion(outputs, labels)
                 
