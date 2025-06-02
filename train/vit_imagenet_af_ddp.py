@@ -25,20 +25,6 @@ def log(args):
     )
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device_id, save_path, seq_length):
-    """
-    Trains the ViT model on the ImageNet dataset with validation.
-
-    Args:
-        model (nn.Module): The ViT model to train.
-        train_loader (DataLoader): The DataLoader for the training data.
-        val_loader (DataLoader): The DataLoader for the validation data.
-        criterion (nn.Module): The loss function (e.g., CrossEntropyLoss).
-        optimizer (Optimizer): The optimizer (e.g., Adam).
-        num_epochs (int): The number of epochs to train.
-
-    Returns:
-        None
-    """
     model.train()  # Set model to training mode
     total_step = len(train_loader)
     best_val_acc = 0.0

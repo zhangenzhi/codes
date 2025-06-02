@@ -1,11 +1,7 @@
 import torch
 from torch import nn
-import torch.utils.data as data  # For custom dataset (optional)
-import torchvision.transforms as transforms
-import timm
 import time
 import os
-from torch.utils.data import DataLoader
 import time
 
 import sys
@@ -13,7 +9,11 @@ sys.path.append("./")
 
 import os
 import logging
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
 
+# from model.vit import create_vit_model
+from dataset.imagenet import imagenet_distribute
 # Configure logging
 def log(args):
     os.makedirs(args.output, exist_ok=True)
@@ -44,7 +44,6 @@ def pretrain_model(model, train_loader, val_loader, optimizer, num_epochs, outpu
             optimizer.zero_grad()   
             
             # Forward pass, calculate loss
-            # with torch.cuda.amp.autocast():
             loss, pred, mask = model(images)
             # print(loss)
             loss.sum().backward()
@@ -84,29 +83,50 @@ def pretrain_model(model, train_loader, val_loader, optimizer, num_epochs, outpu
 
     logging.info('Finished Pre-Training. Best Validation Accuracy: {:.4f}'.format(best_val_loss))
 
-def mae_pretrain(args):
-    log(args=args)
 
-    # Create datasets
-    dataloaders = imagenet(args=args)
-    train_loader = dataloaders["train"]
-    val_loader = dataloaders["val"]
+def mae_pretrain(args):
+    local_rank = int(os.environ['SLURM_LOCALID'])
+    os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
+    os.environ['MASTER_PORT'] = "29500"
+    os.environ['WORLD_SIZE'] = os.environ['SLURM_NTASKS']
+    os.environ['RANK'] = os.environ['SLURM_PROCID']
+    print("MASTER_ADDR:{}, MASTER_PORT:{}, WORLD_SIZE:{}, WORLD_RANK:{}, local_rank:{}".format(os.environ['MASTER_ADDR'], 
+                                                    os.environ['MASTER_PORT'], 
+                                                    os.environ['WORLD_SIZE'], 
+                                                    os.environ['RANK'],
+                                                    local_rank))
+    dist.init_process_group(                                   
+    	backend='nccl',                                         
+   		init_method='env://',                                   
+    	world_size=args.world_size,                              
+    	rank=int(os.environ['RANK'])                                               
+    )
+    print("SLURM_LOCALID/lcoal_rank:{}, dist_rank:{}".format(local_rank, dist.get_rank()))
+
+    print(f"Start running basic DDP example on rank {local_rank}.")
+    device_id = local_rank % torch.cuda.device_count()
     
-    train_size = len(train_loader)
-    val_size = len(val_loader)
-    logging.info("train_size:{}, val_size:{}, test_size:{}".format(train_size, val_size, val_size))
-    
+    # Create DataLoader for training and validation
+    dataloaders = imagenet_distribute(args=args)
+
     # Create ViT model
-    model = mae_vit_base_patch16()
-    model = nn.DataParallel(model)
-    model = model.to(device)
-    
+    model = mae_vit_base_patch16(args.pretrained)
+    model.to(device_id)
+    model = DDP(model, device_ids=[device_id])
+
     # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    # Train the model
-    pretrain_model(model, train_loader, val_loader, optimizer, args.num_epochs, args.output)
+    # Pretrain the model
+    pretrain_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)
+    dist.destroy_process_group()
 
+def mae_ddp(args):
+    log(args=args)
+    args.world_size = int(os.environ['SLURM_NTASKS'])
+    mae_pretrain(args=args)
+    
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, output):
     """

@@ -101,6 +101,7 @@ def test_ap(root_dir, fixed_length=4096,res=256):
             avg_tpatch = avg_size/idx/avg_true_length
             tcr = ((res/avg_tpatch)*(res/avg_tpatch))/avg_true_length 
             print("avg_true_length:{}, Avg_FPatch:{}, Avg_TPatch:{}, FCR:{}, TCR:{}".format(avg_true_length, avg_fpatch,avg_tpatch, fcr, tcr))
+
 def parse_args():
     parser = argparse.ArgumentParser(description='PyTorch ImageNet DataLoader Example')
     parser.add_argument('--task', type=str, default='imagenet', help='Type of task')
