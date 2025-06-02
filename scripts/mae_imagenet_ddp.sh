@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH -A lrn075
 #SBATCH -o mae_imagenet_ddp.o%J
+#SBATCH -q debug
 #SBATCH -t 02:00:00
 #SBATCH -N 16
 #SBATCH -p batch
