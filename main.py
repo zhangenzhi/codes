@@ -10,7 +10,7 @@ from train.vit_imagenet_af_ddp import vit_imagenet_af_ddp_train
 from utiliz.vit_imagenet import vit_train
 from train.vit_imagenet_ddp import vit_ddp
 from train.mae_imagenet import mae_pretrain
-from train.mae_imagenet_ddp import mae_pretrain as mae_pretrain_ddp
+from train.mae_imagenet_ddp import mae_pretrain_ddp as mae_pretrain_ddp
 from train.map_s8d import map_s8d_pretrain
 from train.unet3d_btcv import unet3d_btcv
 from train.unetr_btcv import unetr_btcv

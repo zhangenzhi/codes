@@ -84,7 +84,33 @@ def pretrain_model(model, train_loader, val_loader, optimizer, num_epochs, outpu
     logging.info('Finished Pre-Training. Best Validation Accuracy: {:.4f}'.format(best_val_loss))
 
 
-def mae_pretrain(args):
+def mae_pretrain(args, device_id):
+    # Create DataLoader for training and validation
+    dataloaders = imagenet_distribute(args=args)
+    logging.info("train_size:{}, val_size:{}, test_size:{}".format(len( dataloaders['train']), len( dataloaders['val']), len( dataloaders['val'])))
+    
+
+    # Create ViT model
+    model = mae_vit_base_patch16(args.pretrained)
+    model.to(device_id)
+    model = DDP(model, device_ids=[device_id], find_unused_parameters=False)
+
+    
+    save_path = os.path.join(args.output, args.savefile)
+    if args.reload:
+        if os.path.exists(os.path.join(save_path, "best_mae_pretrain_model.pth")):
+            model.load_state_dict(torch.load(os.path.join(save_path, "best_mae_pretrain_model.pth")))
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+    
+    # Pretrain the model
+    pretrain_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)
+    dist.destroy_process_group()
+
+def mae_pretrain_ddp(args):
+    log(args=args)
+    args.world_size = int(os.environ['SLURM_NTASKS'])
     local_rank = int(os.environ['SLURM_LOCALID'])
     os.environ['MASTER_ADDR'] = str(os.environ['HOSTNAME']) #str(os.environ['HOSTNAME'])
     os.environ['MASTER_PORT'] = "29500"
@@ -105,45 +131,12 @@ def mae_pretrain(args):
 
     print(f"Start running basic DDP example on rank {local_rank}.")
     device_id = local_rank % torch.cuda.device_count()
+    mae_pretrain(args=args, device_id=device_id)
     
-    # Create DataLoader for training and validation
-    dataloaders = imagenet_distribute(args=args)
-
-    # Create ViT model
-    model = mae_vit_base_patch16(args.pretrained)
-    model.to(device_id)
-    model = DDP(model, device_ids=[device_id])
-
-    # Define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
-
-    # Pretrain the model
-    pretrain_model(model, dataloaders['train'], dataloaders['val'], criterion, optimizer, args.num_epochs, device_id=device_id)
     dist.destroy_process_group()
-
-def mae_ddp(args):
-    log(args=args)
-    args.world_size = int(os.environ['SLURM_NTASKS'])
-    mae_pretrain(args=args)
     
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, output):
-    """
-    Trains the ViT model on the ImageNet dataset with validation.
-
-    Args:
-        model (nn.Module): The ViT model to train.
-        train_loader (DataLoader): The DataLoader for the training data.
-        val_loader (DataLoader): The DataLoader for the validation data.
-        criterion (nn.Module): The loss function (e.g., CrossEntropyLoss).
-        optimizer (Optimizer): The optimizer (e.g., Adam).
-        num_epochs (int): The number of epochs to train.
-
-    Returns:
-        None
-    """
-
     model.train()  # Set model to training mode
     best_val_acc = 0.0
     print("Training the MAE model for {} epochs...".format(num_epochs))
